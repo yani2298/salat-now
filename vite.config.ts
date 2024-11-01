@@ -89,3 +89,5 @@ export default defineConfig({
   },
   base: './', // Utiliser des chemins relatifs
 })
+
+// Updated: 2025-07-29T19:15:40.510Z
