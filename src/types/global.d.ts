@@ -1,0 +1,1 @@
+// Les types globaux peuvent être définis ici si nécessaire 

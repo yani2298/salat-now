@@ -1,0 +1,67 @@
+/* Tailwind CSS directives - VS Code peut afficher des avertissements, mais ils peuvent être ignorés */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #1b1e36;
+  background-image: radial-gradient(circle, rgba(76, 82, 138, 0.2) 5%, transparent 5%);
+  background-size: 15px 15px;
+  color: white;
+  font-size: 12px;
+  overflow: auto;
+  /* Hide scrollbar for Chrome, Safari and Opera */
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.prayer-card {
+  background-color: #403275;
+  /* Couleur violet foncé de l'image */
+  border-radius: 1rem;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.prayer-card-active {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.prayer-time {
+  font-size: 3.5rem;
+  font-weight: bold;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.city-name {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0;
+  margin-top: 0.25rem;
+}
+
+.date-gregorian {
+  font-size: 0.75rem;
+  color: #cbd5e0;
+  margin-bottom: 0;
+}
+
+.date-hijri {
+  font-size: 0.7rem;
+  color: #a0aec0;
+  margin-bottom: 0.5rem;
+}

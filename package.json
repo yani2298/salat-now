@@ -1,0 +1,146 @@
+{
+  "name": "salat-now",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "author": {
+    "name": "Salat Now",
+    "email": "contact@example.com",
+    "url": "https://salatnow.app"
+  },
+  "homepage": "https://salatnow.app",
+  "description": "Application de rappel des heures de prière pour musulmans avec notifications",
+  "keywords": [
+    "prière",
+    "islam",
+    "horaires de prière",
+    "application de bureau",
+    "electron",
+    "react"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:optimized": "tsc -b && OPTIMIZE_FONTS=true vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "electron:dev": "concurrently -k \"BROWSER=none npm run dev\" \"electronmon --trace-warnings .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:make": "electron-forge make",
+    "release": "electron-builder",
+    "package:dmg": "electron-installer-dmg ./out/salat-now-darwin-x64/salat-now.app salat-now --overwrite",
+    "start": "electron .",
+    "electron:build:dir": "npm run build && electron-builder --dir --mac",
+    "package": "npm run build && electron-packager . PrayerApp --platform=darwin --arch=x64 --out=release-packager --overwrite --icon=electron/icons/icon.png",
+    "package:all": "npm run build && electron-packager . PrayerApp --platform=darwin,win32,linux --arch=x64 --out=release-packager --overwrite --icon=electron/icons/icon.png",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@fontsource/noto-kufi-arabic": "^5.2.5",
+    "@fontsource/noto-sans-arabic": "^5.2.6",
+    "@headlessui/react": "^2.2.1",
+    "@heroicons/react": "^2.2.0",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.8.4",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
+    "electron-log": "^5.3.3",
+    "electron-updater": "^6.6.2",
+    "framer-motion": "^12.6.5",
+    "menubar": "^9.5.1",
+    "postcss": "^8.5.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0",
+    "tailwindcss": "^3.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "electron": "^23.0.0",
+    "electron-builder": "^26.0.12",
+    "electron-packager": "^17.1.2",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0",
+    "vite-plugin-static-copy": "^2.3.1"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "com.salatnow.app",
+    "productName": "Salat Now",
+    "copyright": "Copyright © 2025 Salat Now",
+    "mac": {
+      "category": "public.app-category.lifestyle",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "electron/icons/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "darkModeSupport": true,
+      "extraResources": [
+        "build/entitlements.mac.plist"
+      ],
+      "extendInfo": {
+        "NSLocationWhenInUseUsageDescription": "Salat Now utilise votre position pour afficher les horaires de prière précis de votre ville."
+      }
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "electron/icons/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "electron/icons"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "yanis",
+      "repo": "salat-now"
+    }
+  }
+}

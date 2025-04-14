@@ -1,0 +1,164 @@
+#root {
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 0.75rem;
+  text-align: center;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Style pour stabiliser l'interface et éviter les défilements */
+body,
+html {
+  overflow: hidden;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+}
+
+/* Conteneur principal avec hauteur fixe */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Bouton menu style iOS dark mode */
+.menu-button {
+  position: static !important;
+  z-index: 1 !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  /* Fond noir Apple */
+  color: white !important;
+  padding: 0.75rem !important;
+  border-radius: 9999px !important;
+  /* Forme ronde */
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 42px !important;
+  height: 42px !important;
+  transition: background-color 0.2s !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(12px) !important;
+  /* Effet verre iOS */
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.menu-button:hover {
+  background-color: rgba(28, 28, 30, 0.9) !important;
+  /* Couleur élevée iOS */
+}
+
+.menu-button:active {
+  background-color: rgba(44, 44, 46, 0.95) !important;
+  /* Couleur tertiaire iOS */
+}
+
+/* Effet miroir pour la carte de prochaine prière */
+.prayer-card-active {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.prayer-card-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  border-radius: 1rem;
+  pointer-events: none;
+  background: transparent;
+  border: 1px solid rgba(192, 192, 192, 0.3);
+  box-shadow: inset 0 0 8px rgba(192, 192, 192, 0.2);
+  animation: border-pulse 4s infinite alternate;
+}
+
+@keyframes border-pulse {
+  0% {
+    border-color: rgba(192, 192, 192, 0.2);
+    box-shadow: inset 0 0 5px rgba(192, 192, 192, 0.1), 0 0 5px rgba(192, 192, 192, 0.1);
+  }
+
+  100% {
+    border-color: rgba(220, 220, 220, 0.4);
+    box-shadow: inset 0 0 12px rgba(220, 220, 220, 0.3), 0 0 10px rgba(192, 192, 192, 0.2);
+  }
+}
+
+.prayer-card-active::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  width: 150%;
+  height: 150%;
+  top: -25%;
+  left: -25%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(211, 211, 211, 0.05) 10%,
+      rgba(230, 230, 250, 0.25) 20%,
+      rgba(192, 192, 192, 0.3) 30%,
+      rgba(220, 220, 220, 0.15) 40%,
+      transparent 50%);
+  transform: rotate(45deg);
+  animation: mirror-shine 4s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes mirror-shine {
+  0% {
+    transform: translateX(-100%) rotate(25deg);
+  }
+
+  100% {
+    transform: translateX(200%) rotate(25deg);
+  }
+}
+
+.logo {
+  height: 3em;
+  padding: 0.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 1.5em;
+}
+
+.read-the-docs {
+  color: #888;
+}
