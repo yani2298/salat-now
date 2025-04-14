@@ -1,4 +1,7 @@
-# Salat Now
+
+# Salat N
+![icone](https://github.com/user-attachments/assets/8387974c-9ad6-42d2-bf83-296e4ddd158f)
+ow
 
 Application de prière pour les musulmans développée par Anis Mosbah.
 
