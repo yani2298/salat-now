@@ -119,6 +119,13 @@ function createWindow() {
     });
     // --- Fin NOUVEAU ---
 
+    // --- NOUVEAU : Gérer la demande de quitter l'application ---
+    ipcMain.on('quit-app', () => {
+      console.log('Quitting application by user request');
+      app.quit();
+    });
+    // --- Fin NOUVEAU ---
+
     // Obtenir la position du tray
     const trayBounds = tray.getBounds();
 

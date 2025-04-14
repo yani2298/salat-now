@@ -12,7 +12,8 @@ const validSendChannels = [
   'update-tray-title',
   'set-menu-display-seconds',
   'set-menu-display-icon',
-  'update-prayer-info' // Nouveau canal pour le widget de prière
+  'update-prayer-info', // Nouveau canal pour le widget de prière
+  'quit-app' // Nouveau canal pour quitter l'application
 ];
 
 const validReceiveChannels = [
@@ -268,5 +269,10 @@ contextBridge.exposeInMainWorld('electron', {
   
   onUpdateError: (callback) => {
     ipcRenderer.on('update-error', (_, err) => callback(err));
+  },
+  
+  // Nouvelle méthode pour quitter l'application
+  quitApp: () => {
+    ipcRenderer.send('quit-app');
   },
 });

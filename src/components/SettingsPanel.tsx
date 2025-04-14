@@ -1739,6 +1739,34 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                 <p className="text-white/60 text-sm mt-1">Tous droits réservés.</p>
               </div>
             </div>
+
+            {/* Bouton Quitter l'application - style Apple */}
+            <div className="bg-[#1c1c1e] rounded-xl overflow-hidden">
+              <div className="px-5 py-3.5 border-b border-white/5">
+                <h3 className="text-base font-medium text-white">Quitter l'application</h3>
+              </div>
+              <div className="p-5">
+                <motion.button
+                  className="w-full py-3.5 rounded-xl bg-[#fd4f57] hover:bg-[#ea3d46] text-white font-medium flex items-center justify-center"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    if (window.electron && window.electron.quitApp) {
+                      window.electron.quitApp();
+                    }
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                    <line x1="12" y1="2" x2="12" y2="12"></line>
+                  </svg>
+                  Quitter Salat Now
+                </motion.button>
+                <p className="text-xs text-white/50 mt-2 text-center">
+                  Ferme complètement l'application et la retire de la barre de menu
+                </p>
+              </div>
+            </div>
           </div>
         );
 

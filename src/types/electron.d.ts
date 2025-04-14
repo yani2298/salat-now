@@ -51,6 +51,9 @@ interface ElectronAPI {
   }) => void) => void;
   onUpdateDownloaded: (callback: (info: any) => void) => void;
   onUpdateError: (callback: (err: Error) => void) => void;
+  
+  // Quitter l'application
+  quitApp: () => void;
 }
 
 declare global {
