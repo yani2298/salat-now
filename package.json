@@ -1,7 +1,7 @@
 {
   "name": "salat-now",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "author": {
     "name": "Salat Now",
@@ -29,6 +29,7 @@
     "electron:build": "npm run build && electron-builder",
     "electron:make": "electron-forge make",
     "release": "electron-builder",
+    "publish-release": "electron-builder --publish never",
     "package:dmg": "electron-installer-dmg ./out/salat-now-darwin-x64/salat-now.app salat-now --overwrite",
     "start": "electron .",
     "electron:build:dir": "npm run build && electron-builder --dir --mac",
