@@ -14,6 +14,7 @@
   ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
   [![Language](https://img.shields.io/badge/Language-French-blue.svg)](https://github.com/yani2298/salat-now)
   [![npm package](https://img.shields.io/badge/npm-salat--times--calculator-orange.svg)](https://www.npmjs.com/package/salat-times-calculator)
+  [![GitHub Package Registry](https://img.shields.io/badge/GitHub-@yani2298/salat--times--calculator-blue.svg)](https://github.com/yani2298/salat-now/packages)
 </div>
 
 ---
@@ -22,13 +23,21 @@
 
 **Salat Now** also provides a **professional npm package** for developers who want to integrate Islamic prayer times calculation into their own applications:
 
+**📦 Public npm:**
 ```bash
 npm install salat-times-calculator
 ```
 
+**🐙 GitHub Packages:**
+```bash
+npm install @yani2298/salat-times-calculator
+```
+
 **Quick usage:**
 ```typescript
+// Import from public npm OR GitHub packages
 import { SalatTimesCalculator, CalculationMethod } from 'salat-times-calculator';
+// OR: import { SalatTimesCalculator, CalculationMethod } from '@yani2298/salat-times-calculator';
 
 const calculator = new SalatTimesCalculator();
 const prayerTimes = await calculator.getPrayerTimes({
@@ -45,7 +54,7 @@ const prayerTimes = await calculator.getPrayerTimes({
 - 🕌 Islamic community websites
 - ⏰ Prayer reminder systems
 
-👉 **[View package documentation →](https://www.npmjs.com/package/salat-times-calculator)**
+👉 **[View npm package →](https://www.npmjs.com/package/salat-times-calculator)** | **[View GitHub package →](https://github.com/yani2298/salat-now/packages)**
 
 ---
 
