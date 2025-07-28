@@ -2,8 +2,8 @@
 # 🕌 Salat Now
 
 <div align="center">
-  <img src="public/app-icon.png" alt="Salat Now App Icon" width="80" height="80">
-  
+  <img width="640" height="640" alt="favicon" src="https://github.com/user-attachments/assets/02f7df8b-341e-435f-8997-a5f9afa74dbf" />
+
   <h3>Prayer times reminder application for Muslims</h3>
   
   [![GitHub release](https://img.shields.io/github/release/yani2298/salat-now.svg)](https://github.com/yani2298/salat-now/releases)
