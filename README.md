@@ -38,6 +38,9 @@ Built specifically for macOS, it integrates seamlessly into your menu bar, provi
 - **⚙️ Professional Interface** - Clean, minimal design that respects your workflow
 - **🔒 Privacy First** - No data collection, works offline
 - **🆓 Completely Free** - No subscriptions, no ads, open source
+- 
+<img width="351" height="551" alt="3" src="https://github.com/user-attachments/assets/5055f9bc-4875-4300-a0f9-5fe21f586a7b" />
+<img width="351" height="577" alt="1" src="https://github.com/user-attachments/assets/e7f98111-473b-41a8-92a0-6b2ed2b00568" />
 
 ---
 
