@@ -18,33 +18,53 @@ const validSendChannels = [
 
 const validReceiveChannels = [
   'startup-launch-status',
-  'app-version'
+  'app-version',
+  'update-available',
+  'update-not-available',
+  'update-download-progress',
+  'update-downloaded',
+  'update-error',
+  'stop-adhan',
+  'notification-clicked-stop-adhan',
+  'update-after-sleep',
+  'check-prayer-times'
 ];
 
 // Exposer ipcRenderer de manière sécurisée au processus de rendu
 contextBridge.exposeInMainWorld('electronAPI', {
   // Méthode sécurisée pour envoyer des messages IPC
   send: (channel, data) => {
+    // Liste blanche des canaux autorisés pour send
+    let validSendChannels = ['update-tray-title', 'set-menu-display-seconds', 'set-menu-display-icon', 'quit-app', 'show-notification'];
     if (validSendChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
-    } else {
-      console.warn(`Channel ${channel} not authorized for sending`);
     }
   },
   
   // Méthode sécurisée pour recevoir des messages IPC
   on: (channel, func) => {
+    // Liste blanche des canaux autorisés pour on
+    let validReceiveChannels = [
+      'app-version', 
+      'update-available', 
+      'update-not-available', 
+      'update-download-progress', 
+      'update-downloaded', 
+      'update-error', 
+      'stop-adhan', 
+      'notification-clicked-stop-adhan',
+      'update-after-sleep',
+      'check-prayer-times'
+    ]; // Ajout des nouveaux canaux
     if (validReceiveChannels.includes(channel)) {
-      // Supprimer l'encapsulage pour conserver la fonction d'origine lors de la suppression de l'écouteur
-      const subscription = (event, ...args) => func(...args);
-      ipcRenderer.on(channel, subscription);
+      // Envelopper la fonction pour s'assurer que seuls les arguments prévus sont passés
+      const listener = (event, ...args) => func(...args);
+      ipcRenderer.on(channel, listener);
       // Retourner une fonction pour se désabonner
-      return () => {
-        ipcRenderer.removeListener(channel, subscription);
-      };
+      return () => ipcRenderer.removeListener(channel, listener);
     } else {
-      console.warn(`Channel ${channel} not authorized for receiving`);
-      return () => {}; // Fonction vide pour éviter les erreurs
+      console.warn(`Tentative d\'écoute sur un canal non autorisé: ${channel}`);
+      return () => {}; // Retourner une fonction vide
     }
   },
   
@@ -161,17 +181,80 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     
     // Configurer le défilement horizontal pour les mosquées à proximité
+    // Utiliser une solution plus robuste que la simple sélection de classe
+    const configureMosqueScrolling = () => {
+      try {
+        // Rechercher le conteneur des mosquées de manière plus précise 
+        // en ciblant à la fois la classe et la structure
     const mosquesContainer = document.querySelector('.scrollbar-hide');
     if (mosquesContainer) {
+          // Appliquer les styles CSS avancés pour un défilement fluide
       mosquesContainer.style.overflowX = 'auto';
       mosquesContainer.style.overflowY = 'hidden';
-    }
+          mosquesContainer.style.scrollbarWidth = 'none'; // Firefox
+          mosquesContainer.style.scrollBehavior = 'smooth';
+          mosquesContainer.style.WebkitOverflowScrolling = 'touch'; // iOS momentum scrolling
+          
+          // Polyfill pour Safari/iOS pour s'assurer que -webkit-scrollbar est correctement masqué
+          const styleElement = document.createElement('style');
+          styleElement.textContent = `
+            .scrollbar-hide::-webkit-scrollbar {
+              display: none !important;
+              width: 0 !important;
+              height: 0 !important;
+              -webkit-appearance: none !important;
+              background: transparent !important;
+            }
+            
+            .scrollbar-hide {
+              -ms-overflow-style: none !important; /* IE and Edge */
+              scrollbar-width: none !important; /* Firefox */
+            }
+          `;
+          document.head.appendChild(styleElement);
+          
+          // Persistance des styles en réappliquant les styles après 2 secondes (après que le rendu soit complet)
+          setTimeout(() => {
+            const refreshedMosquesContainer = document.querySelector('.scrollbar-hide');
+            if (refreshedMosquesContainer) {
+              refreshedMosquesContainer.style.overflowX = 'auto';
+              refreshedMosquesContainer.style.overflowY = 'hidden';
+              refreshedMosquesContainer.style.scrollbarWidth = 'none';
+              refreshedMosquesContainer.style.WebkitOverflowScrolling = 'touch';
+            }
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la configuration du défilement des mosquées:', error);
+      }
+    };
+    
+    // Appliquer immédiatement
+    configureMosqueScrolling();
+    
+    // Réappliquer après un court délai pour s'assurer que les styles persistent
+    // même après des mises à jour dynamiques du DOM
+    setTimeout(configureMosqueScrolling, 500);
   });
 
   // Observer les changements dans le DOM
   observer.observe(document.body, {
     childList: true,
     subtree: true
+  });
+  
+  // Réappliquer également les styles lors du chargement complet pour plus de sécurité
+  window.addEventListener('load', () => {
+    // Cibler spécifiquement la section des mosquées après chargement complet
+    setTimeout(() => {
+      const mosquesContainer = document.querySelector('.scrollbar-hide');
+      if (mosquesContainer) {
+        mosquesContainer.style.overflowX = 'auto';
+        mosquesContainer.style.overflowY = 'hidden';
+        mosquesContainer.style.scrollbarWidth = 'none';
+        mosquesContainer.style.WebkitOverflowScrolling = 'touch';
+      }
+    }, 1000);
   });
 });
 

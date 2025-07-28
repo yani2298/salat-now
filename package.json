@@ -29,7 +29,6 @@
     "electron:build": "npm run build && electron-builder",
     "electron:make": "electron-forge make",
     "release": "electron-builder",
-    "publish-release": "electron-builder --publish never",
     "package:dmg": "electron-installer-dmg ./out/salat-now-darwin-x64/salat-now.app salat-now --overwrite",
     "start": "electron .",
     "electron:build:dir": "npm run build && electron-builder --dir --mac",
@@ -49,15 +48,18 @@
     "electron-log": "^5.3.3",
     "electron-updater": "^6.6.2",
     "framer-motion": "^12.6.5",
+    "howler": "^2.2.4",
     "menubar": "^9.5.1",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "tailwind-merge": "^3.2.0",
     "tailwindcss": "^3.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/howler": "^2.2.12",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
@@ -78,7 +80,20 @@
   "build": {
     "appId": "com.salatnow.app",
     "productName": "Salat Now",
-    "copyright": "Copyright © 2025 Salat Now",
+    "copyright": "Copyright © 2025 Anis Mosbah",
+    "compression": "maximum",
+    "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "fileAssociations": [],
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "extraResources": [
+      "build/entitlements.mac.plist"
+    ],
     "mac": {
       "category": "public.app-category.lifestyle",
       "target": [
@@ -91,9 +106,6 @@
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
       "darkModeSupport": true,
-      "extraResources": [
-        "build/entitlements.mac.plist"
-      ],
       "extendInfo": {
         "NSLocationWhenInUseUsageDescription": "Salat Now utilise votre position pour afficher les horaires de prière précis de votre ville."
       }
@@ -130,10 +142,6 @@
       "category": "Utility",
       "icon": "electron/icons"
     },
-    "files": [
-      "dist/**/*",
-      "electron/**/*"
-    ],
     "directories": {
       "output": "release",
       "buildResources": "build"

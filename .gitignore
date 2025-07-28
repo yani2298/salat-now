@@ -68,3 +68,4 @@ $RECYCLE.BIN/
 .Trash-*
 .vs
 .vscode
+node_modules

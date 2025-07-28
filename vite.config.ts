@@ -31,16 +31,23 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true,
         pure_funcs: ['console.log', 'console.debug', 'console.trace'],
+        passes: 2,
       },
       mangle: {
         safari10: true,
+        toplevel: true,
+      },
+      format: {
+        comments: false,
       },
     },
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'framer-motion'],
+          vendor: ['react', 'react-dom'],
+          motion: ['framer-motion'],
           ui: ['@headlessui/react', '@heroicons/react', 'clsx'],
+          utils: ['dayjs', 'axios'],
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
@@ -61,9 +68,12 @@ export default defineConfig({
           }
           return 'assets/[name]-[hash][extname]';
         },
+        compact: true,
+        inlineDynamicImports: false,
       },
     },
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 1000,
+    target: 'esnext',
   },
   server: {
     hmr: {

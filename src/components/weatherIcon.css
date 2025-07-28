@@ -1,0 +1,458 @@
+/* Conteneur de base */
+.weather-icon-container {
+  position: relative;
+  width: 4rem; /* 64px */
+  height: 4rem; /* 64px */
+}
+
+/* Animations subtiles pour le soleil/lune */
+.dawn-sun {
+  transform: translateX(-50%);
+  transition: box-shadow 1s ease-in-out;
+}
+
+.noon-sun {
+  transform: translate(-50%, -50%);
+  /* Animation légère de "pulsation" utilisant seulement opacity */
+  animation: subtle-pulse 5s ease-in-out infinite alternate;
+}
+
+.afternoon-sun {
+  transform: translate(-50%, -50%);
+}
+
+.sunset-sun {
+  transform: translateX(-50%);
+}
+
+.night-moon {
+  transform: translate(-50%, -50%);
+}
+
+/* Animations CSS efficaces pour les étoiles */
+.star-1 {
+  animation: star-pulse 4s ease-in-out infinite;
+}
+
+.star-2 {
+  animation: star-pulse 5s ease-in-out infinite 1s;
+}
+
+/* Définition d'animations très légères utilisant des propriétés optimisées pour GPU */
+@keyframes subtle-pulse {
+  0% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes star-pulse {
+  0%, 100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Add styles for Partly Cloudy animation */
+
+/* Shared styles for Sun (reused from your example) */
+.sunny,
+.partly_cloudy__sun {
+  position: relative; /* Needed for pseudo-elements */
+  width: 5rem; /* Adjust size as needed */
+  height: 5rem; /* Adjust size as needed */
+}
+
+.sunny::before,
+.partly_cloudy__sun::before {
+  content: "";
+  position: absolute;
+  height: 80%;
+  width: 80%;
+  top: 10%;
+  left: 10%; /* Use left instead of right for consistency */
+  border-radius: 50%;
+  z-index: 2;
+  /* Revert to original yellow colors */
+  background-color: #f1c40f;
+  background-image: radial-gradient(#f1c40f, #f39c12);
+  box-shadow: 0 0 25px #917508;
+}
+
+.sunny::after,
+.partly_cloudy__sun::after {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  z-index: 1;
+  /* Revert to original yellow/orange color */
+  background-color: #f39c12;
+  will-change: opacity, transform;
+  animation: fadeIn 2s linear infinite reverse,
+             scaleDown 2s linear infinite reverse;
+}
+
+/* Shared styles for Cloud (reused from your example) */
+.cloudy,
+.partly_cloudy__cloud,
+.rainy__cloud,
+.thundery__cloud {
+  position: relative; /* Needed for pseudo-elements */
+  width: 5rem; /* Base size, will be scaled by parent */
+  height: 5rem; /* Base size, will be scaled by parent */
+}
+
+.cloudy::before,
+.partly_cloudy__cloud::before,
+.rainy__cloud::before,
+.thundery__cloud::before {
+  content: "";
+  position: absolute;
+  height: 40%;
+  width: 40%;
+  top: 30%;
+  right: 0%;
+  border-radius: 50%;
+  border-bottom-left-radius: 0;
+  z-index: 2;
+  background-color: #ecf0f1;
+  background-image: radial-gradient(#ecf0f1, #bdc3c7);
+  box-shadow: 0 0 25px rgba(0,0,0,.3);
+}
+
+.cloudy::after,
+.partly_cloudy__cloud::after,
+.rainy__cloud::after,
+.thundery__cloud::after {
+  content: "";
+  position: absolute;
+  height: 60%;
+  width: 70%;
+  top: 10%;
+  right: 30%; /* Changed from example's right: 30% to left: 0% ? No, keep right:30% */
+  border-radius: 50%;
+  border-bottom-right-radius: 0;
+  z-index: 1;
+  background-color: #ecf0f1;
+  background-image: radial-gradient(#ecf0f1, #bdc3c7);
+  box-shadow: 0 0 25px rgba(0,0,0,.3);
+}
+
+/* Specific styles for Partly Cloudy container */
+.partly_cloudy {
+  position: relative; /* Changed from absolute for container */
+  width: 5rem; /* Match sun/cloud base size */
+  height: 5rem;
+  /* margin-top: 4rem; */ /* Removed margin */
+}
+
+.partly_cloudy__sun {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0; /* Ensure alignment */
+  left: 0; /* Ensure alignment */
+  z-index: 1; /* Sun behind */
+}
+
+.partly_cloudy__cloud {
+  position: absolute;
+  width: 60%; /* Smaller cloud */
+  height: 60%;
+  top: 40%; /* Positioned lower */
+  left: 20%; /* Center the smaller cloud */
+  z-index: 2; /* Cloud in front */
+  will-change: transform;
+  animation: translateUp 2s linear infinite alternate;
+}
+
+/* Keyframes needed */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes scaleDown {
+  0% { transform: scale(1); }
+  100% { transform: scale(.8); }
+}
+
+@keyframes translateUp {
+  0% { transform: translatey(15%); }
+  100% { transform: translatey(0); }
+}
+
+/* Styles for Isha animation (Night with Moon/Clouds/Stars) */
+
+/* Apply styles within the specific container */
+.isha-container {
+  position: relative;
+  /* Scaled down width/height */
+  width: 60px; /* Approx 150 / 2.5 */
+  height: 68px; /* Approx 170 / 2.5 */
+  transform: scale(0.9); /* Further scale down if needed */
+  transform-origin: center center;
+  /* margin: auto; */
+}
+
+.isha-container #cloud:after {
+  content: '';
+  position: absolute;
+  z-index: 999;
+  /* Scaled down */
+  border-radius: 10px; /* 25 / 2.5 */
+  width: 20px;  /* 50 / 2.5 */
+  height: 6px;   /* 15 / 2.5 */
+  background-color: #fff;
+  top: 0px;
+  right: 5px; /* Adjust position */
+  /* Scaled down box-shadow offsets */
+  box-shadow: -8px -4px 0 -1px #fff, 4px 0 0 0 #fff; /* Approx / 2.5 */
+  animation: slow-float 3s infinite;
+}
+
+/* Target the second cloud pseudo-element specifically */
+.isha-container #cloud:nth-of-type(2):after { /* Changed from nth-child */
+   /* Scaled down */
+   top: 40px;   /* 100 / 2.5 */
+   left: -12px; /* -30 / 2.5 */
+   right: auto; /* Override right from previous rule */
+   /* Scaled down box-shadow offsets */
+   box-shadow: 10px -4px 0 0px #fff, 6px 3px 0 -1px #fff; /* Approx / 2.5 */
+}
+
+.isha-container #star {
+  position: absolute; /* Position stars relative to container */
+  top: 5px; /* Adjust */
+  left: -10px; /* Adjust */
+  /* Scaled down */
+  height: 2px; /* 5 / 2.5 */
+  width: 2px;  /* 5 / 2.5 */
+  border-radius: 100%;
+  background-color: #fff;
+  /* Adjusted and scaled box-shadow offsets */
+  box-shadow: 80px 40px 0 0 #fff,  /* 200/2.5, 100/2.5 */
+              72px 20px 0 0 #fff,  /* 180/2.5, 50/2.5 */
+              8px 48px 0 0 #fff,   /* 20/2.5, 120/2.5 */
+              2px 20px 0 0 #fff,   /* 5/2.5, 50/2.5 */
+              44px 8px 0 0 #fff,   /* 110/2.5, 20/2.5 */
+              40px 4px 0 -1px #fff,  /* 100/2.5, 10/2.5 */
+              60px 48px 0 -1px #fff,  /* 150/2.5, 120/2.5 */
+              14px 2px 0 -1px #fff,   /* 35/2.5, 5/2.5 */
+              20px 8px 0 0 #fff,    /* 50/2.5, 20/2.5 */
+              80px 20px 0 0 #fff,   /* 200/2.5, 50/2.5 */
+              82px 36px 0 -1px #fff, /* 205/2.5, 90/2.5 */
+              88px 4px 0 -1px #fff,  /* 220/2.5, 10/2.5 */
+              -20px 36px 0 0px #fff, /* -50/2.5, 90/2.5 */ 
+              -16px 4px 0 -1px #fff;  /* -40/2.5, 10/2.5 */
+}
+
+.isha-container #moon {
+  position: relative; 
+  /* Scaled down */
+  width: 60px;  /* 150 / 2.5 */
+  height: 60px; /* 150 / 2.5 */
+  background-color: #fae4a8;
+  border-radius: 50%;
+  /* Keep background image gradients as they are relative */
+  background-image: radial-gradient(circle at 40% 80%, #ddc997 10%, transparent 0), 
+                    radial-gradient(circle at 55% 70%, #ddc997 5%, transparent 0), 
+                    radial-gradient(circle at 58% 85%, #ddc997 6%, transparent 0), 
+                    radial-gradient(circle at 80% 40%, #ddc997 12%, transparent 0), 
+                    radial-gradient(circle at 87% 58%, #ddc997 4%, transparent 0);
+  /* Use scaled translate in animation */
+  animation: float-scaled 3s infinite;
+  z-index: 10; 
+}
+
+.isha-container #shadow {
+  position: absolute; 
+  bottom: 0;
+  left: 0; /* Align with moon */
+  background: #333;
+  /* Scaled down */
+  width: 60px;  /* 150 / 2.5 */
+  height: 8px;   /* 20 / 2.5 */
+  border-radius: 50%;
+  /* Use scaled zoom animation */
+  animation: zoom-scaled 3s infinite;
+  z-index: 9; /* Below moon */
+}
+
+/* Keyframes for Isha animation (Original) */
+/* Keep original keyframes for reference if needed */
+
+/* Scaled Keyframes for Isha animation */
+@keyframes float-scaled {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    /* Scaled down translate */
+    transform: translateY(-8px); /* -20 / 2.5 */
+  }
+}
+
+@keyframes slow-float {
+   0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    /* Keep small translate or scale it slightly */
+    transform: translateX(-2px); /* -5 / 2.5 */
+  }
+}
+
+@keyframes zoom-scaled {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    /* Keep scale factor */
+    transform: scale(0.7);
+  }
+}
+
+/* Replace original keyframes if scaled ones work */
+/* Make sure the animation properties use the scaled keyframes */
+.isha-container #moon { animation: float-scaled 3s infinite; }
+.isha-container #cloud:after { animation: slow-float 3s infinite; }
+.isha-container #shadow { animation: zoom-scaled 3s infinite; }
+
+/* Specific styles for Fajr sun (Orange) */
+/* Inherits base size/position from .sunny but overrides colors */
+.fajr_sun {
+  position: relative; /* Ensure positioning context */
+  width: 5rem; /* Match base size */
+  height: 5rem;
+}
+
+.fajr_sun::before {
+  content: "";
+  position: absolute;
+  height: 80%;
+  width: 80%;
+  top: 10%;
+  left: 10%;
+  border-radius: 50%;
+  z-index: 2;
+  /* Orange colors */
+  background-color: #fb923c; /* Tailwind orange-400 */
+  background-image: radial-gradient(#fef08a, #fb923c); /* Tailwind yellow-200 to orange-400 */
+  box-shadow: 0 0 20px #d97706; /* Darker orange/amber shadow */
+}
+
+.fajr_sun::after {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  z-index: 1;
+  /* Orange glow color */
+  background-color: #f97316; /* Tailwind orange-500 */
+  will-change: opacity, transform;
+  /* Use the same animations as .sunny */
+  animation: fadeIn 2s linear infinite reverse,
+             scaleDown 2s linear infinite reverse;
+}
+
+/* Styles for Sunset Clouds animation (Maghrib) */
+
+.sunset_clouds {
+  position: relative;
+  width: 5rem; /* Match base size */
+  height: 5rem;
+  overflow: hidden; /* Clip the sun */
+}
+
+.sunset_clouds__sun {
+  position: absolute;
+  width: 80%; /* Slightly smaller sun */
+  height: 80%;
+  left: 10%;
+  top: 45%; /* Positioned lower, half below the bottom edge */
+  border-radius: 50%;
+  background-color: #f97316; /* Base orange */
+  background-image: radial-gradient(#fb923c, #ef4444); /* orange-400 to red-500 */
+  box-shadow: 0 0 20px #dc2626; /* red-600 shadow */
+  z-index: 5; /* Above clouds? Maybe below clouds? Test positioning */
+}
+
+/* Reuse cloud structure but prefix with sunset_clouds */
+.sunset_clouds__cloud {
+  position: absolute;
+  width: 50%; /* Smaller clouds */
+  height: 50%;
+  z-index: 6; /* Above sun */
+  animation: slow-float 4s ease-in-out infinite alternate; /* Slower float */
+}
+
+.sunset_clouds__cloud.cloud1 {
+  top: 15%;
+  left: 10%;
+  animation-delay: -1s; /* Offset animation */
+}
+
+/* Optional second cloud styles */
+/*
+.sunset_clouds__cloud.cloud2 {
+  top: 25%;
+  left: 40%; 
+  transform: scale(0.8); 
+  opacity: 0.8;
+}
+*/
+
+/* Use pseudo-elements for cloud shapes */
+.sunset_clouds__cloud::before {
+  content: "";
+  position: absolute;
+  height: 50%; /* Adjusted proportions */
+  width: 50%;
+  top: 30%;
+  right: -5%; /* Adjust position relative to parent */
+  border-radius: 50%;
+  border-bottom-left-radius: 0;
+  z-index: 2;
+  /* Slightly darker/greyer clouds for sunset? Or keep white? */
+  background-color: #d1d5db; /* gray-300 */
+  background-image: radial-gradient(#e5e7eb, #d1d5db); /* gray-200 to gray-300 */
+  box-shadow: 0 0 15px rgba(0,0,0,.2);
+}
+
+.sunset_clouds__cloud::after {
+  content: "";
+  position: absolute;
+  height: 70%; /* Adjusted proportions */
+  width: 80%;
+  top: 15%;
+  right: 25%; /* Adjust position relative to parent */
+  border-radius: 50%;
+  border-bottom-right-radius: 0;
+  z-index: 1;
+  /* Slightly darker/greyer clouds */
+  background-color: #d1d5db; /* gray-300 */
+  background-image: radial-gradient(#e5e7eb, #d1d5db); /* gray-200 to gray-300 */
+  box-shadow: 0 0 15px rgba(0,0,0,.2);
+}
+
+.sunset_clouds__horizon {
+  position: absolute;
+  bottom: 25%; /* Position the horizon line */
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: rgba(0, 0, 0, 0.4); /* Darker line */
+  z-index: 7; /* Above sun and clouds */
+} 

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, Notification, shell, systemPreferences, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, Notification, shell, systemPreferences, dialog, powerMonitor } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
 const { autoUpdater } = require('electron-updater');
@@ -11,6 +11,9 @@ let window = null;
 // Variables pour les préférences d'affichage du menu
 let showMenuIcon = true;
 let showSeconds = true;
+
+// Variable pour suivre si l'application doit être mise à jour après la mise en veille
+let needsUpdateAfterSleep = false;
 
 // Configuration de l'autoupdater
 autoUpdater.logger = require('electron-log');
@@ -149,7 +152,7 @@ function createWindow() {
     // Créer la fenêtre du navigateur à la position calculée
     window = new BrowserWindow({
       width: 360,
-      height: 540, // Hauteur fixe pour éviter le défilement
+      height: 550, // Augmenté à 550px pour s'assurer que tout s'affiche
       webPreferences: {
         preload: path.join(__dirname, 'preload.cjs'),
         nodeIntegration: false,
@@ -171,13 +174,21 @@ function createWindow() {
       fullscreenable: false,
     });
 
+    // Cacher la fenêtre lorsqu'elle perd le focus
+    window.on('blur', () => {
+      if (window && window.isVisible()) {
+        console.log('Window lost focus, hiding...');
+        window.hide();
+      }
+    });
+
     // Définir un Content Security Policy sécurisé
     window.webContents.session.webRequest.onHeadersReceived((details, callback) => {
       callback({
         responseHeaders: {
           ...details.responseHeaders,
           'Content-Security-Policy': [
-            "default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://api.dicebear.com; font-src 'self'; connect-src 'self' https://api.aladhan.com https://api.open-meteo.com https://overpass-api.de https://overpass.openstreetmap.fr https://overpass.kumi.systems https://*.openstreetmap.org https://*.google.com https://maps.googleapis.com https://ipapi.co https://nominatim.openstreetmap.org"
+            "default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://api.dicebear.com; font-src 'self'; connect-src 'self' https://api.aladhan.com https://api.open-meteo.com https://overpass-api.de https://overpass.openstreetmap.fr https://overpass.kumi.systems https://*.openstreetmap.org https://nominatim.openstreetmap.org https://*.google.com https://maps.googleapis.com https://ipapi.co https://nominatim.openstreetmap.org"
           ]
         }
       });
@@ -436,60 +447,32 @@ ipcMain.on('open-system-preferences', (event, { section }) => {
 });
 
 // Écouteur pour les demandes de notification avec instructions spécifiques
-ipcMain.on('show-notification', (event, options) => {
-  try {
-    console.log('Showing notification:', options);
-    
-    // Création des options de notification adaptées à la plateforme
-    const notificationOptions = {
-      title: options.title || 'Notification',
-      body: options.body || '',
-      silent: options.silent || false
-    };
-    
-    // Sur macOS, ajouter des options spécifiques
-    if (process.platform === 'darwin') {
-      // Vérifier si notre app a le droit d'envoyer des notifications
-      if (!Notification.isSupported()) {
-        console.log('Les notifications ne sont pas supportées sur ce système');
-        return;
-      }
-      
-      // Options spécifiques pour macOS
-      Object.assign(notificationOptions, {
-        subtitle: options.subtitle || '',
-        hasReply: false,
-        timeoutType: 'default',
-        urgency: 'normal',
-        closeButtonText: 'Fermer',
-        sound: true // Utilisez un son conforme aux directives Apple
-      });
+ipcMain.on('show-notification', (event, { title, body }) => {
+  // Créer la notification (Options restaurées, SAUF icon pour test)
+  const notification = new Notification({
+    title: title || 'Salat Now',
+    body: body || 'Notification',
+    // icon: path.join(__dirname, 'icons', 'icon.png'), // Option 'icon' retirée pour test
+    silent: false, // Option restaurée
+    timeoutType: 'default' // Option restaurée
+    // 'actions' array remains removed
+  });
+
+  notification.on('click', () => {
+    console.log('Notification cliquée');
+    // stopAdhanAudio(); // Appel incorrect supprimé
+    // Envoyer un message IPC au renderer pour arrêter l'audio
+    if (window && window.webContents) {
+      window.webContents.send('notification-clicked-stop-adhan');
     }
-    
-    const notification = new Notification(notificationOptions);
-    
-    notification.show();
-    
-    // Gestion des clics sur la notification
-    notification.on('click', () => {
-      // Rendre la fenêtre visible si elle ne l'est pas déjà
-      if (window && !window.isVisible()) {
-        window.show();
-      }
-      
-      // Informer le processus de rendu que la notification a été cliquée
-      if (window) {
-        window.webContents.send('notification-clicked', { id: options.id });
-      }
-    });
-    
-    // Gestion des fermetures de notification (uniquement pour le débogage)
-    notification.on('close', () => {
-      console.log('Notification fermée');
-    });
-  } catch (error) {
-    console.error('Erreur lors de l\'affichage de la notification:', error);
-  }
+  });
+
+  notification.on('close', () => {
+    console.log('Notification fermée');
+  });
+
+  // Afficher la notification
+  notification.show();
 });
 
 // Écouteur pour configurer le lancement au démarrage
@@ -613,6 +596,34 @@ app.whenReady().then(() => {
   });
 
   console.log('Raccourci clavier enregistré: CommandOrControl+Shift+M');
+
+  // Surveiller les événements de veille/réveil du système
+  powerMonitor.on('suspend', () => {
+    console.log('Système mis en veille');
+    needsUpdateAfterSleep = true;
+  });
+  
+  powerMonitor.on('resume', () => {
+    console.log('Système sorti de veille');
+    if (needsUpdateAfterSleep && window && window.webContents) {
+      console.log('Mise à jour des horaires de prière après la veille...');
+      // Donner un peu de temps au système pour rétablir la connectivité réseau
+      setTimeout(() => {
+        window.webContents.send('update-after-sleep');
+        needsUpdateAfterSleep = false;
+      }, 5000); // Attendre 5 secondes pour s'assurer que le réseau est disponible
+    }
+  });
+  
+  // Vérification périodique pour s'assurer que les horaires sont à jour
+  // même si l'ordinateur était en veille
+  setInterval(() => {
+    if (window && window.webContents) {
+      const now = new Date();
+      console.log(`Vérification périodique des horaires: ${now.toLocaleTimeString()}`);
+      window.webContents.send('check-prayer-times');
+    }
+  }, 5 * 60 * 1000); // Vérifier toutes les 5 minutes
 }).catch(error => {
   console.error('Error in whenReady:', error);
 });

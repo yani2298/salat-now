@@ -6,16 +6,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PrayerCard from './components/PrayerCard';
 import PrayerList from './components/PrayerList';
 import CityHeader from './components/CityHeader';
-import MenuHamburger from './components/MenuHamburger';
 import SettingsPanel from './components/SettingsPanel';
-import NearbyMosques from './components/NearbyMosques';
 import { getPrayerTimes, getCachedLocation, getCachedCalculationMethod } from './services/prayerService';
 import { Prayer, PrayerTimes } from './types/prayer';
 import { initAdhanService, scheduleAdhanNotifications } from './services/adhanService';
 import { formatHijriDate, getHijriDate } from './services/hijriService';
 import { initOptimizerService, enableAutomaticOptimization, optimizeStorage } from './services/optimizerService';
-import salatNowLogo from './assets/salat-now.png'; // Importer l'image
+// import salatNowLogo from './assets/salat-now.png'; // Importer l'image
 import { FiMapPin } from 'react-icons/fi';
+import { FiMenu } from 'react-icons/fi'; // Importer l'icône de menu
 
 // Activer les plugins Day.js
 dayjs.extend(duration);
@@ -32,6 +31,51 @@ function App() {
   const [error, setError] = useState<string | null>(null); // Variable utilisée dans le rendu conditionnel uniquement
 
   const leaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Définir updateDataInBackground comme une fonction nommée pour pouvoir la référencer
+  const updateDataInBackground = async (forceRefresh = false) => {
+    console.log("Mise à jour des données en arrière-plan...");
+    try {
+      // Rafraîchir les données si nécessaire sans bloquer l'interface
+      const today = dayjs().format('DD-MM-YYYY');
+
+      // Récupérer la localisation
+      const { city, country } = getCachedLocation();
+
+      // Forcer le rafraîchissement depuis l'API si demandé
+      try {
+        const times = await getPrayerTimes(city, today, forceRefresh, country);
+        setPrayerTimes(times);
+
+        // Mettre à jour la prochaine prière
+        const nextPrayerTime = determineNextPrayer(times);
+        setNextPrayer(nextPrayerTime);
+
+        // Planifier les notifications d'adhan
+        scheduleAdhanNotifications(times);
+        
+        // Enregistrer l'heure de la dernière mise à jour
+        localStorage.setItem('last_prayer_update', Date.now().toString());
+      } catch (prayerError) {
+        console.error("Erreur lors de la mise à jour des horaires de prière:", prayerError);
+      }
+
+      // Mettre à jour la date hijri
+      try {
+        const hijriDateData = await getHijriDate(today, forceRefresh);
+        const formattedDate = formatHijriDate(hijriDateData, 'short', 'fr');
+        setHijriDate(formattedDate);
+      } catch (hijriError) {
+        console.error("Erreur lors de la mise à jour de la date hijri:", hijriError);
+      }
+
+      console.log("Mise à jour en arrière-plan terminée");
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour en arrière-plan:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Une erreur inconnue est survenue lors de la mise à jour.';
+      setError(errorMessage);
+    }
+  };
 
   // Initialiser les services au démarrage
   useEffect(() => {
@@ -55,14 +99,49 @@ function App() {
         console.log(`Permission de notification: ${permission}`);
       });
     }
+    
+    // Ajouter un écouteur pour les mises à jour après la sortie de veille
+    const sleepUpdateListener = window.electronAPI.on('update-after-sleep', () => {
+      console.log('Détection de sortie de veille, mise à jour des horaires...');
+      // Forcer une mise à jour complète
+      updateDataInBackground(true);
+    });
+    
+    // Ajouter un écouteur pour les vérifications périodiques
+    const periodicCheckListener = window.electronAPI.on('check-prayer-times', () => {
+      console.log('Vérification périodique des horaires de prière');
+      // Vérifier si nous avons besoin d'une mise à jour (par exemple, si l'heure a changé significativement)
+      if (prayerTimes) {
+        const now = dayjs();
+        const lastUpdated = localStorage.getItem('last_prayer_update');
+        
+        if (!lastUpdated || (now.diff(dayjs(parseInt(lastUpdated)), 'minute') > 10)) {
+          console.log('Mise à jour périodique des horaires de prière');
+          updateDataInBackground(false);
+        } else {
+          console.log('Pas besoin de mise à jour, dernière mise à jour récente');
+          // Mettre à jour la prochaine prière si nécessaire
+          if (prayerTimes) {
+            setNextPrayer(determineNextPrayer(prayerTimes));
+          }
+        }
+      } else {
+        // Si nous n'avons pas de données, forcer une mise à jour
+        updateDataInBackground(true);
+      }
+    });
 
     // Nettoyage à la fermeture de l'application
     return () => {
       // Optimiser le stockage avant la fermeture
       optimizeStorage();
+      
+      // Nettoyer les écouteurs d'événements
+      sleepUpdateListener();
+      periodicCheckListener();
     };
-  }, []);
-
+  }, [prayerTimes]);
+  
   // Effet pour le chargement initial rapide à partir du cache
   useEffect(() => {
     const quickInitialLoad = async () => {
@@ -86,6 +165,9 @@ function App() {
 
           // Planifier les notifications d'adhan
           scheduleAdhanNotifications(times);
+          
+          // Enregistrer l'heure de la dernière mise à jour
+          localStorage.setItem('last_prayer_update', Date.now().toString());
         } catch (prayerError) {
           console.error("Erreur lors du chargement des horaires de prière:", prayerError);
         }
@@ -116,47 +198,6 @@ function App() {
     // On n'exécute pas cela au premier montage, car l'effet ci-dessus s'en charge
     if (isInitialLoad) return;
 
-    const updateDataInBackground = async () => {
-      console.log("Mise à jour des données en arrière-plan...");
-      try {
-        // Rafraîchir les données si nécessaire sans bloquer l'interface
-        const today = dayjs().format('DD-MM-YYYY');
-
-        // Récupérer la localisation
-        const { city, country } = getCachedLocation();
-
-        // Forcer le rafraîchissement depuis l'API
-        try {
-          const times = await getPrayerTimes(city, today, true, country);
-          setPrayerTimes(times);
-
-          // Mettre à jour la prochaine prière
-          const nextPrayerTime = determineNextPrayer(times);
-          setNextPrayer(nextPrayerTime);
-
-          // Planifier les notifications d'adhan
-          scheduleAdhanNotifications(times);
-        } catch (prayerError) {
-          console.error("Erreur lors de la mise à jour des horaires de prière:", prayerError);
-        }
-
-        // Mettre à jour la date hijri
-        try {
-          const hijriDateData = await getHijriDate(today, true);
-          const formattedDate = formatHijriDate(hijriDateData, 'short', 'fr');
-          setHijriDate(formattedDate);
-        } catch (hijriError) {
-          console.error("Erreur lors de la mise à jour de la date hijri:", hijriError);
-        }
-
-        console.log("Mise à jour en arrière-plan terminée");
-      } catch (error) {
-        console.error('Erreur lors de la mise à jour en arrière-plan:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Une erreur inconnue est survenue lors de la mise à jour.';
-        setError(errorMessage);
-      }
-    };
-
     // Mettre à jour les données en arrière-plan
     updateDataInBackground();
 
@@ -174,7 +215,7 @@ function App() {
 
       return setTimeout(() => {
         console.log("Minuit atteint, mise à jour des horaires de prière...");
-        updateDataInBackground();
+        updateDataInBackground(true); // Forcer une mise à jour à minuit
         updateTimesAtMidnight(); // Replanifier pour le jour suivant
       }, msToMidnight);
     };
@@ -406,34 +447,56 @@ function App() {
   console.log("Affichage du contenu principal...");
   return (
     <div
-      className="app-container flex flex-col items-center pt-10 px-2 pb-0 relative"
+      className="app-container shaped-window flex flex-col items-center pt-10 px-2 pb-0 relative bg-gradient-to-b from-blue-950 to-[#0D0F1A]"
       onMouseLeave={handleMouseLeaveApp}
       onMouseEnter={handleMouseEnterApp}
     >
-      {/* Logo Salat Now - Positionné à droite */}
-      <img
-        src={salatNowLogo}
-        alt="Salat Now Logo"
-        className="absolute top-2 right-2 w-16 z-50"
-      />
+      {/* Top Arrow Pointer */}
+      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+        <div className="w-0 h-0 \
+          border-l-[10px] border-l-transparent \
+          border-r-[10px] border-r-transparent \
+          border-b-[10px] border-b-gray-900\"> {/* Match the top color of the gradient */}
+        </div>
+      </div>
+
+      {/* Logo Salat Now supprimé et remplacé par un indicateur live */}
+      <div className="absolute top-6 right-6 z-50">
+        {!settingsOpen && (
+          <span className="relative flex h-3 w-3">
+            {!settingsOpen && (
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            )}
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+          </span>
+        )}
+      </div>
 
       {/* Localisation - Positionné en haut */}
-      <div className="text-gray-400 text-xs mb-4 flex items-center">
+      <div className="text-gray-400 text-xs mb-2 flex items-center">
         <FiMapPin className="mr-1" />
         {getCachedLocation().city}, {getCachedLocation().country}
       </div>
 
-      {/* Menu Hamburger - positionné à gauche, masqué quand les réglages sont ouverts */}
+      {/* Nouveau bouton Menu (icône) - positionné à gauche, masqué quand les réglages sont ouverts */}
       {!settingsOpen && (
         <div className="absolute top-6 left-6 w-auto z-[999]">
-          <MenuHamburger
-            onSettingsClick={handleSettingsClick}
-          />
+          <button 
+            onClick={handleSettingsClick}
+            className="p-2 rounded-full text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors"
+            aria-label="Ouvrir les paramètres"
+          >
+            <FiMenu className="w-5 h-5" />
+          </button>
         </div>
       )}
 
-      {/* Panneau de réglages */}
-      <SettingsPanel isOpen={settingsOpen} onClose={handleCloseSettings} />
+      {/* Panneau de réglages (Déplacé ici) */}
+      <AnimatePresence>
+        {settingsOpen && (
+          <SettingsPanel isOpen={settingsOpen} onClose={handleCloseSettings} />
+        )}
+      </AnimatePresence>
 
       {prayerTimes && (
         <div className="flex flex-col items-center flex-shrink-0 w-full max-w-xs mt-2">
@@ -444,7 +507,7 @@ function App() {
           />
 
           <motion.div
-            className="w-full max-w-xs mb-0 mt-2 flex-grow-0"
+            className={`w-full max-w-xs mb-0 ${showAllPrayers ? 'mt-2' : 'mt-8'} flex-grow-0 overflow-auto`}
             layout={false}
             transition={{ type: 'spring', stiffness: 300, damping: 35 }}
           >
@@ -452,71 +515,38 @@ function App() {
               <PrayerCard prayer={nextPrayer} isNext={true} />
             )}
 
-            {!showAllPrayers && (
-              <motion.div className="flex justify-center mt-4">
-                <motion.button
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 bg-opacity-70 text-white shadow-lg"
-                  onClick={togglePrayerList}
-                  whileHover={{
-                    scale: 1.1,
-                    boxShadow: "0 0 15px rgba(79, 70, 229, 0.6)",
-                    backgroundColor: "rgba(99, 102, 241, 0.85)"
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ y: 0 }}
-                >
-                  <motion.div
-                    animate={{
-                      rotate: showAllPrayers ? 180 : 0,
-                    }}
-                    transition={{
-                      rotate: { duration: 0.3, type: "spring", stiffness: 200 }
-                    }}
-                    className="text-base font-bold"
-                  >
-                    {showAllPrayers ? '↑' : '↓'}
-                  </motion.div>
-                </motion.button>
-              </motion.div>
-            )}
-
-            {/* Carousel des mosquées à proximité */}
-            {!showAllPrayers && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.4 }}
-                className="mt-2"
+            {/* Bouton fléché avec positionnement révisé */}
+            <motion.div className={`flex justify-center ${showAllPrayers ? 'mt-4' : 'mt-8'} mb-4`}>
+              <motion.button
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 bg-opacity-70 text-white shadow-lg"
+                onClick={togglePrayerList}
+                whileHover={{
+                  scale: 1.1,
+                  boxShadow: "0 0 15px rgba(79, 70, 229, 0.6)",
+                  backgroundColor: "rgba(99, 102, 241, 0.85)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ y: 0 }} // Garder l'animation initiale si souhaité
               >
-                <NearbyMosques limit={20} />
-              </motion.div>
-            )}
-
-            {showAllPrayers && (
-              <motion.div className="flex justify-center mt-4">
-                <motion.button
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 bg-opacity-70 text-white shadow-lg"
-                  onClick={togglePrayerList}
-                  whileHover={{
-                    scale: 1.1,
-                    boxShadow: "0 0 15px rgba(79, 70, 229, 0.6)",
-                    backgroundColor: "rgba(99, 102, 241, 0.85)"
+                <motion.div
+                  animate={{
+                    rotate: showAllPrayers ? 180 : 0,
                   }}
-                  whileTap={{ scale: 0.95 }}
+                  transition={{
+                    rotate: { duration: 0.3, type: "spring", stiffness: 200 }
+                  }}
+                  className="text-base font-bold"
                 >
-                  <motion.div
-                    animate={{
-                      rotate: showAllPrayers ? 180 : 0,
-                    }}
-                    transition={{
-                      rotate: { duration: 0.3, type: "spring", stiffness: 200 }
-                    }}
-                    className="text-base font-bold"
-                  >
-                    {showAllPrayers ? '↑' : '↓'}
-                  </motion.div>
-                </motion.button>
-              </motion.div>
+                  {showAllPrayers ? '↑' : '↓'} 
+                </motion.div>
+              </motion.button>
+            </motion.div>
+
+            {/* Footer conditionnel - Visible uniquement sur la façade */}
+            {!showAllPrayers && (
+              <div className="text-center text-[10px] text-gray-500 mt-6 pt-2 absolute bottom-4 left-0 right-0">
+                <p>© Salat Now ° 2025</p>
+              </div>
             )}
 
             <AnimatePresence mode="wait">
@@ -529,11 +559,6 @@ function App() {
                   className="w-full"
                 >
                   <PrayerList prayerTimes={prayerTimes} currentPrayer={nextPrayer?.name || ''} />
-
-                  {/* Footer avec marge réduite */}
-                  <div className="text-center text-xs text-gray-400 mt-1 pt-0">
-                    <p>Salat Now &copy; 2025</p>
-                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

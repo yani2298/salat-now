@@ -66,7 +66,8 @@ const PrayerCard: React.FC<PrayerCardProps> = ({ prayer, isNext }) => {
   const backgroundAnimation = {
     // Remplacer l'animation de dégradé par un dégradé statique
     background: "linear-gradient(135deg, #2a2a72, #4e4376)",
-    boxShadow: "0 10px 25px rgba(42, 42, 114, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
+    // Supprimer la boxShadow d'ici pour utiliser celle de la classe CSS
+    // boxShadow: "0 15px 30px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1)" 
   };
 
   // Supprimer la transition d'animation de fond
@@ -118,7 +119,16 @@ const PrayerCard: React.FC<PrayerCardProps> = ({ prayer, isNext }) => {
           <h3 className="prayer-time text-7xl">{prayer.time}</h3>
 
           <div className="absolute right-1 bottom-1 scale-150 origin-bottom-right">
-            <WeatherIcon type={prayer.icon} />
+            <WeatherIcon 
+              type={
+                prayer.name === 'Fajr' ? 'fajr_sun' : 
+                prayer.name === 'Dhuhr' ? 'partly_cloudy' : 
+                prayer.name === 'Asr' ? 'sunny' : 
+                prayer.name === 'Maghrib' ? 'sunset_clouds' :
+                prayer.name === 'Isha' ? 'night_moon_clouds' : 
+                prayer.icon
+              } 
+            />
           </div>
         </div>
 

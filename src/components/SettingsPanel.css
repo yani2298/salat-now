@@ -1,0 +1,102 @@
+/* Animation CSS pour le panneau de réglages */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  transition: opacity 0.2s ease;
+}
+
+.settings-panel {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(10, 10, 10);
+  z-index: 50;
+  overflow: auto;
+  padding-bottom: 80px; /* Espace en bas pour que le contenu ne soit pas caché par la barre */
+}
+
+/* Barre d'action fixe */
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 24px;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 60; /* Au-dessus du panneau (50) */
+  transform: translateY(0);
+}
+
+/* Conteneur des boutons */
+.action-buttons {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+}
+
+/* Style commun des boutons dans la barre */
+.action-bar .settings-button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 500;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-bar #cancel-button {
+  background-color: #2c2c2e;
+}
+.action-bar #cancel-button:hover {
+  background-color: #3c3c3e;
+}
+
+.action-bar #save-button {
+  background-color: #3478F6;
+}
+.action-bar #save-button:hover {
+  background-color: #2563eb;
+}
+.action-bar #save-button:disabled {
+  background-color: #1d4ed8;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Optimisations pour les transitions */
+.settings-panel * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* Optimisations pour le tab switching */
+.tab-container {
+  will-change: opacity;
+  transition: opacity 0.2s ease;
+  margin-bottom: 0; /* Plus besoin de marge ici, le padding du panel suffit */
+}
+
+/* Animations plus légères pour les boutons généraux */
+.settings-button {
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.settings-button:active {
+  transform: scale(0.98);
+}
+
+/* ProgressBar animation simplifiée */
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+} 

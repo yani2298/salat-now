@@ -174,32 +174,134 @@ const suggestionCache: Record<string, LocationSuggestion[]> = {};
 
 /**
  * Récupère les suggestions de villes basées sur le terme de recherche
- * Utilise uniquement les données mockées pour éviter les problèmes de CSP
+ * Utilise l'API Nominatim d'OpenStreetMap pour des résultats mondiaux
  */
 export const getCitySuggestions = async (searchTerm: string): Promise<LocationSuggestion[]> => {
+  // Si le terme de recherche est vide ou trop court, retourner quelques villes populaires
+  if (!searchTerm || searchTerm.trim().length < 2) {
+    return getPopularCities();
+  }
+
   // Vérifier si les résultats sont dans le cache
-  if (suggestionCache[searchTerm]) {
-    return suggestionCache[searchTerm];
+  const cacheKey = searchTerm.toLowerCase().trim();
+  if (suggestionCache[cacheKey]) {
+    console.log(`Utilisation du cache pour "${cacheKey}"`);
+    return suggestionCache[cacheKey];
   }
 
   try {
-    // En raison des restrictions CSP, utiliser directement les données simulées
-    const suggestions = getMockCitySuggestions(searchTerm);
+    // Utiliser l'API Nominatim d'OpenStreetMap pour une base de données mondiale
+    const endpoint = `https://nominatim.openstreetmap.org/search`;
+    const params = new URLSearchParams({
+      q: searchTerm,
+      format: 'json',
+      addressdetails: '1',
+      limit: '15',
+      'accept-language': 'fr',
+      featureType: 'city'
+    });
 
-        // Mettre en cache les résultats
-        suggestionCache[searchTerm] = suggestions;
-        return suggestions;
+    console.log(`Recherche de villes pour "${searchTerm}"...`);
+    
+    const response = await secureAxios.get(`${endpoint}?${params.toString()}`);
+    
+    if (response.data && Array.isArray(response.data)) {
+      const suggestions: LocationSuggestion[] = response.data
+        .filter(item => item.type === 'city' || item.type === 'administrative' || item.class === 'place')
+        .map((item, index) => {
+          const city = item.address?.city || item.address?.town || item.address?.village || item.name;
+          const country = item.address?.country || '';
+          const countryCode = item.address?.country_code?.toUpperCase() || '';
+          
+          return {
+            id: `${index}-${item.place_id}`,
+            name: city,
+            country: country,
+            countryCode: countryCode
+          };
+        })
+        .filter(item => item.name && item.country); // Éliminer les résultats sans nom ou pays
+      
+      // Mettre en cache les résultats
+      suggestionCache[cacheKey] = suggestions;
+      
+      // Sauvegarder dans le cache persistant
+      saveSuggestionsToStorage(cacheKey, suggestions);
+      
+      console.log(`Trouvé ${suggestions.length} suggestions pour "${searchTerm}"`);
+      return suggestions;
+    }
+    
+    return [];
   } catch (error) {
     console.error('Erreur lors de la récupération des suggestions de villes:', error);
-    return [];
+    
+    // En cas d'erreur, utiliser le fallback avec les données mockées
+    const fallbackResults = getMockCitySuggestions(searchTerm);
+    
+    // Mettre en cache même les résultats de fallback
+    suggestionCache[cacheKey] = fallbackResults;
+    
+    return fallbackResults;
   }
 };
 
 /**
- * Génère des suggestions de villes simulées pour le développement
+ * Sauvegarde les suggestions dans le stockage persistant (IndexedDB)
+ */
+const saveSuggestionsToStorage = async (query: string, suggestions: LocationSuggestion[]) => {
+  try {
+    const db = await initDatabase();
+    const transaction = db.transaction(SUGGESTIONS_STORE, 'readwrite');
+    const store = transaction.objectStore(SUGGESTIONS_STORE);
+    const now = Date.now();
+    const expiryTime = now + SUGGESTIONS_CACHE_DURATION;
+    
+    // Sauvegarder avec une date d'expiration
+    store.put({
+      query,
+      suggestions,
+      expiryTime
+    });
+    
+    console.log(`Suggestions pour "${query}" sauvegardées dans le stockage persistant`);
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des suggestions:', error);
+  }
+};
+
+/**
+ * Retourne une liste de villes populaires à travers le monde
+ */
+const getPopularCities = (): LocationSuggestion[] => {
+  return [
+    // France
+    { id: '1', name: 'Paris', country: 'France', countryCode: 'FR' },
+    { id: '2', name: 'Lyon', country: 'France', countryCode: 'FR' },
+    { id: '3', name: 'Marseille', country: 'France', countryCode: 'FR' },
+    // Maghreb
+    { id: '11', name: 'Rabat', country: 'Maroc', countryCode: 'MA' },
+    { id: '12', name: 'Casablanca', country: 'Maroc', countryCode: 'MA' },
+    { id: '20', name: 'Alger', country: 'Algérie', countryCode: 'DZ' },
+    { id: '24', name: 'Tunis', country: 'Tunisie', countryCode: 'TN' },
+    // Moyen-Orient et Asie
+    { id: '38', name: 'La Mecque', country: 'Arabie Saoudite', countryCode: 'SA' },
+    { id: '34', name: 'Le Caire', country: 'Égypte', countryCode: 'EG' },
+    { id: '35', name: 'Istanbul', country: 'Turquie', countryCode: 'TR' },
+    // Autres régions du monde
+    { id: '42', name: 'Londres', country: 'Royaume-Uni', countryCode: 'GB' },
+    { id: '43', name: 'Madrid', country: 'Espagne', countryCode: 'ES' },
+    { id: '50', name: 'New York', country: 'États-Unis', countryCode: 'US' },
+    { id: '51', name: 'Tokyo', country: 'Japon', countryCode: 'JP' },
+    { id: '52', name: 'Sydney', country: 'Australie', countryCode: 'AU' },
+  ];
+};
+
+/**
+ * Génère des suggestions de villes simulées pour le fallback
  */
 const getMockCitySuggestions = (searchTerm: string): LocationSuggestion[] => {
-  console.log('Recherche mock avec le terme:', searchTerm);
+  console.log('Utilisation du fallback pour les suggestions avec le terme:', searchTerm);
   
   const mockCities = [
     // France
@@ -255,11 +357,25 @@ const getMockCitySuggestions = (searchTerm: string): LocationSuggestion[] => {
     { id: '44', name: 'Rome', country: 'Italie', countryCode: 'IT' },
     { id: '45', name: 'Berlin', country: 'Allemagne', countryCode: 'DE' },
     { id: '46', name: 'Bruxelles', country: 'Belgique', countryCode: 'BE' },
+    // Amérique du Nord
+    { id: '50', name: 'New York', country: 'États-Unis', countryCode: 'US' },
+    { id: '51', name: 'Los Angeles', country: 'États-Unis', countryCode: 'US' },
+    { id: '52', name: 'Toronto', country: 'Canada', countryCode: 'CA' },
+    { id: '53', name: 'Mexico', country: 'Mexique', countryCode: 'MX' },
+    // Asie de l'Est
+    { id: '60', name: 'Tokyo', country: 'Japon', countryCode: 'JP' },
+    { id: '61', name: 'Séoul', country: 'Corée du Sud', countryCode: 'KR' },
+    { id: '62', name: 'Pékin', country: 'Chine', countryCode: 'CN' },
+    { id: '63', name: 'Shanghai', country: 'Chine', countryCode: 'CN' },
+    // Océanie
+    { id: '70', name: 'Sydney', country: 'Australie', countryCode: 'AU' },
+    { id: '71', name: 'Melbourne', country: 'Australie', countryCode: 'AU' },
+    { id: '72', name: 'Auckland', country: 'Nouvelle-Zélande', countryCode: 'NZ' },
   ];
 
   // Si le terme de recherche est vide, retourner quelques villes populaires
   if (!searchTerm || searchTerm.trim() === '') {
-    return mockCities.slice(0, 10); // Retourne les 10 premières villes
+    return mockCities.slice(0, 15); // Retourne les 15 premières villes
   }
 
   // Filtrer les villes qui correspondent au terme de recherche
@@ -282,7 +398,7 @@ const getMockCitySuggestions = (searchTerm: string): LocationSuggestion[] => {
   // Combiner les résultats en donnant la priorité aux correspondances strictes
   const combinedResults = [...strictMatches, ...partialMatches];
   
-  console.log(`Trouvé ${combinedResults.length} suggestions pour "${searchTerm}"`);
+  console.log(`Trouvé ${combinedResults.length} suggestions mockées pour "${searchTerm}"`);
   
   // Limiter à 15 résultats maximum pour éviter une liste trop longue
   return combinedResults.slice(0, 15);
@@ -291,20 +407,74 @@ const getMockCitySuggestions = (searchTerm: string): LocationSuggestion[] => {
 /**
  * Récupère les coordonnées d'une ville et d'un pays spécifiés
  */
-export const getCoordinatesForCity = async (city: string, _country: string): Promise<{ lat: number; lon: number } | null> => {
+export const getCoordinatesForCity = async (city: string, country: string): Promise<{ lat: number; lon: number } | null> => {
   if (!city) return null;
   
+  // Créer une clé de cache pour cette recherche
+  const cacheKey = `${city.toLowerCase()},${country.toLowerCase()}`;
+  
+  // Vérifier si les coordonnées sont en cache
+  const cachedCoords = localStorage.getItem(`city_coords_${cacheKey}`);
+  if (cachedCoords) {
+    try {
+      const coords = JSON.parse(cachedCoords);
+      console.log(`Utilisation des coordonnées en cache pour ${city}, ${country}`);
+      return coords;
+    } catch (error) {
+      console.error('Erreur lors de la lecture des coordonnées en cache:', error);
+      // Continuer avec la recherche en ligne en cas d'erreur
+    }
+  }
+  
   try {
-    // En raison des restrictions CSP, utiliser directement les données simulées
-    return getMockCoordinates(city);
+    // Utiliser l'API Nominatim d'OpenStreetMap pour trouver les coordonnées
+    const endpoint = `https://nominatim.openstreetmap.org/search`;
+    const searchQuery = country ? `${city}, ${country}` : city;
+    
+    const params = new URLSearchParams({
+      q: searchQuery,
+      format: 'json',
+      limit: '1',
+      'accept-language': 'fr'
+    });
+    
+    console.log(`Recherche de coordonnées pour ${searchQuery}...`);
+    
+    const response = await secureAxios.get(`${endpoint}?${params.toString()}`);
+    
+    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+      const result = response.data[0];
+      const coordinates = {
+        lat: parseFloat(result.lat),
+        lon: parseFloat(result.lon)
+      };
+      
+      // Sauvegarder les coordonnées en cache
+      localStorage.setItem(`city_coords_${cacheKey}`, JSON.stringify(coordinates));
+      
+      console.log(`Coordonnées trouvées pour ${city}, ${country}:`, coordinates);
+      return coordinates;
+    }
+    
+    // Si aucun résultat n'est trouvé, utiliser les coordonnées mockées
+    console.log(`Aucune coordonnée trouvée pour ${city}, ${country}. Utilisation des données mockées.`);
+    const mockCoords = getMockCoordinates(city);
+    
+    // Sauvegarder même les coordonnées mockées en cache
+    localStorage.setItem(`city_coords_${cacheKey}`, JSON.stringify(mockCoords));
+    
+    return mockCoords;
   } catch (error) {
     console.error('Erreur lors de la récupération des coordonnées:', error);
-    return getMockCoordinates(city);
+    
+    // En cas d'erreur, utiliser les données mockées
+    const mockCoords = getMockCoordinates(city);
+    return mockCoords;
   }
 };
 
 /**
- * Génère des coordonnées simulées pour le développement
+ * Génère des coordonnées simulées pour le développement (fallback)
  */
 const getMockCoordinates = (city: string): { lat: number; lon: number } => {
   const mockCoordinates: Record<string, { lat: number; lon: number }> = {
@@ -320,22 +490,131 @@ const getMockCoordinates = (city: string): { lat: number; lon: number } => {
     'Dubai': { lat: 25.2048, lon: 55.2708 },
     'Le Caire': { lat: 30.0444, lon: 31.2357 },
     'Istanbul': { lat: 41.0082, lon: 28.9784 },
+    'New York': { lat: 40.7128, lon: -74.0060 },
+    'Los Angeles': { lat: 34.0522, lon: -118.2437 },
+    'Londres': { lat: 51.5074, lon: -0.1278 },
+    'Tokyo': { lat: 35.6762, lon: 139.6503 },
+    'Sydney': { lat: -33.8688, lon: 151.2093 },
+    'Rio de Janeiro': { lat: -22.9068, lon: -43.1729 },
+    'Le Cap': { lat: -33.9249, lon: 18.4241 },
+    'Moscou': { lat: 55.7558, lon: 37.6173 },
+    'Berlin': { lat: 52.5200, lon: 13.4050 },
+    'Madrid': { lat: 40.4168, lon: -3.7038 },
+    'Rome': { lat: 41.9028, lon: 12.4964 },
+    'Mexico': { lat: 19.4326, lon: -99.1332 },
+    'Jakarta': { lat: -6.2088, lon: 106.8456 },
+    'Mumbai': { lat: 19.0760, lon: 72.8777 },
+    'Delhi': { lat: 28.7041, lon: 77.1025 },
+    'La Mecque': { lat: 21.4225, lon: 39.8262 },
+    'Médine': { lat: 24.5247, lon: 39.5692 },
   };
 
-  return mockCoordinates[city] || { lat: 0, lon: 0 };
+  // Retourner les coordonnées si disponibles, sinon utiliser Paris comme valeur par défaut
+  return mockCoordinates[city] || { lat: 48.8566, lon: 2.3522 };
 };
 
 /**
  * Fonction pour convertir les coordonnées en adresse (géocodage inverse)
+ * Utilise l'API Nominatim d'OpenStreetMap pour obtenir des données précises
  */
-export const reverseGeocode = async (_lat: number, _lon: number): Promise<{ city: string; country: string } | null> => {
+export const reverseGeocode = async (lat: number, lon: number): Promise<{ city: string; country: string } | null> => {
+  if (!lat || !lon) return null;
+  
+  // Créer une clé de cache pour ces coordonnées
+  const cacheKey = `${lat.toFixed(4)},${lon.toFixed(4)}`;
+  
+  // Vérifier si les données sont en cache
+  if (LOCATION_REVERSE_CACHE[cacheKey]) {
+    console.log('Utilisation du cache pour la géolocalisation inverse:', cacheKey);
+    return LOCATION_REVERSE_CACHE[cacheKey];
+  }
+  
   try {
-    // En raison des restrictions CSP, retourner des données simulées
-    return { city: 'Paris', country: 'France' };
+    // Utiliser l'API Nominatim d'OpenStreetMap pour le géocodage inverse
+    const endpoint = `https://nominatim.openstreetmap.org/reverse`;
+    const params = new URLSearchParams({
+      lat: lat.toString(),
+      lon: lon.toString(),
+      format: 'json',
+      'accept-language': 'fr',
+      zoom: '10' // Niveau 10 correspond généralement aux villes
+    });
+    
+    console.log(`Géocodage inverse pour les coordonnées ${lat}, ${lon}...`);
+    
+    const response = await secureAxios.get(`${endpoint}?${params.toString()}`);
+    
+    if (response.data && response.data.address) {
+      const address = response.data.address;
+      
+      // Extraire la ville et le pays des résultats
+      // Nominatim peut retourner différents niveaux administratifs
+      const city = address.city || address.town || address.village || address.hamlet || address.municipality || '';
+      const country = address.country || '';
+      
+      const result = { city, country };
+      
+      // Mettre en cache les résultats
+      LOCATION_REVERSE_CACHE[cacheKey] = result;
+      
+      console.log(`Localisation trouvée: ${city}, ${country}`);
+      return result;
+    }
+    
+    // Si aucun résultat n'est trouvé, utiliser les données mockées
+    console.log('Aucune localisation trouvée. Utilisation des données mockées.');
+    return getFallbackLocation(lat, lon);
   } catch (error) {
     console.error('Erreur lors du géocodage inverse:', error);
-    return { city: 'Paris', country: 'France' };
+    
+    // En cas d'erreur, utiliser les données mockées
+    return getFallbackLocation(lat, lon);
   }
+};
+
+/**
+ * Obtenir une localisation de secours à partir des coordonnées
+ */
+const getFallbackLocation = (latitude: number, longitude: number): { city: string; country: string } => {
+  // Trouver la ville la plus proche dans notre liste de coordonnées connues
+  const mockCities: Record<string, { lat: number; lon: number; country: string }> = {
+    'Paris': { lat: 48.8566, lon: 2.3522, country: 'France' },
+    'Lyon': { lat: 45.7578, lon: 4.8320, country: 'France' },
+    'Marseille': { lat: 43.2965, lon: 5.3698, country: 'France' },
+    'Rabat': { lat: 34.0209, lon: -6.8416, country: 'Maroc' },
+    'Casablanca': { lat: 33.5731, lon: -7.5898, country: 'Maroc' },
+    'Marrakech': { lat: 31.6295, lon: -7.9811, country: 'Maroc' },
+    'Alger': { lat: 36.7538, lon: 3.0588, country: 'Algérie' },
+    'Tunis': { lat: 36.8065, lon: 10.1815, country: 'Tunisie' },
+    'Doha': { lat: 25.2854, lon: 51.5310, country: 'Qatar' },
+    'Dubai': { lat: 25.2048, lon: 55.2708, country: 'Émirats Arabes Unis' },
+    'Le Caire': { lat: 30.0444, lon: 31.2357, country: 'Égypte' },
+    'Istanbul': { lat: 41.0082, lon: 28.9784, country: 'Turquie' },
+    'New York': { lat: 40.7128, lon: -74.0060, country: 'États-Unis' },
+    'Londres': { lat: 51.5074, lon: -0.1278, country: 'Royaume-Uni' },
+    'Tokyo': { lat: 35.6762, lon: 139.6503, country: 'Japon' },
+    'La Mecque': { lat: 21.4225, lon: 39.8262, country: 'Arabie Saoudite' },
+  };
+  
+  let closestCity = 'Paris';
+  let minDistance = Number.MAX_VALUE;
+  
+  for (const [city, coords] of Object.entries(mockCities)) {
+    const distance = Math.sqrt(
+      Math.pow(latitude - coords.lat, 2) + 
+      Math.pow(longitude - coords.lon, 2)
+    );
+    
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestCity = city;
+    }
+  }
+  
+  // Obtenir le pays correspondant à la ville la plus proche
+  const country = mockCities[closestCity].country;
+  
+  return { city: closestCity, country };
 };
 
 /**
@@ -345,73 +624,19 @@ export const reverseGeocode = async (_lat: number, _lon: number): Promise<{ city
  * @returns Promise avec la ville et le pays
  */
 export const getLocationFromCoordinates = async (latitude: number, longitude: number): Promise<{city: string, country: string}> => {
-  const cacheKey = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
-  
-  // Vérifier le cache
-  if (LOCATION_REVERSE_CACHE[cacheKey]) {
-    console.log('Utilisation du cache pour la géolocalisation inverse:', cacheKey);
-    return LOCATION_REVERSE_CACHE[cacheKey];
-  }
-  
   try {
     console.log('Récupération de la localisation depuis les coordonnées:', latitude, longitude);
     
-    // En raison des restrictions CSP, simuler une ville basée sur les coordonnées
-    // Trouver la ville la plus proche dans notre liste de coordonnées connues
-    const mockCities = {
-      'Paris': { lat: 48.8566, lon: 2.3522 },
-      'Lyon': { lat: 45.7578, lon: 4.8320 },
-      'Marseille': { lat: 43.2965, lon: 5.3698 },
-      'Rabat': { lat: 34.0209, lon: -6.8416 },
-      'Casablanca': { lat: 33.5731, lon: -7.5898 },
-      'Marrakech': { lat: 31.6295, lon: -7.9811 },
-      'Alger': { lat: 36.7538, lon: 3.0588 },
-      'Tunis': { lat: 36.8065, lon: 10.1815 },
-      'Doha': { lat: 25.2854, lon: 51.5310 },
-      'Dubai': { lat: 25.2048, lon: 55.2708 },
-      'Le Caire': { lat: 30.0444, lon: 31.2357 },
-      'Istanbul': { lat: 41.0082, lon: 28.9784 }
-    };
+    // Utiliser notre fonction reverseGeocode améliorée
+    const result = await reverseGeocode(latitude, longitude);
     
-    let closestCity = 'Paris';
-    let minDistance = Number.MAX_VALUE;
-    
-    for (const [city, coords] of Object.entries(mockCities)) {
-      const distance = Math.sqrt(
-        Math.pow(latitude - coords.lat, 2) + 
-        Math.pow(longitude - coords.lon, 2)
-      );
-      
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestCity = city;
-      }
-    }
-    
-    // Déterminer le pays en fonction de la ville
-    let country = 'France';
-    if (['Rabat', 'Casablanca', 'Marrakech'].includes(closestCity)) {
-      country = 'Maroc';
-    } else if (closestCity === 'Alger') {
-      country = 'Algérie';
-    } else if (closestCity === 'Tunis') {
-      country = 'Tunisie';
-    } else if (closestCity === 'Doha') {
-      country = 'Qatar';
-    } else if (['Dubai'].includes(closestCity)) {
-      country = 'Émirats Arabes Unis';
-    } else if (closestCity === 'Le Caire') {
-      country = 'Égypte';
-    } else if (['Istanbul'].includes(closestCity)) {
-      country = 'Turquie';
-    }
-    
-    const result = { city: closestCity, country };
-      
-      // Mettre en cache le résultat
-      LOCATION_REVERSE_CACHE[cacheKey] = result;
-      
+    if (result && result.city && result.country) {
       return result;
+    }
+    
+    // Si le géocodage inverse n'a pas fonctionné, utiliser les valeurs par défaut
+    console.warn('Le géocodage inverse n\'a pas retourné de résultats complets');
+    return { city: 'Paris', country: 'France' };
   } catch (error) {
     console.error('Erreur lors de la géolocalisation inverse:', error);
     // Valeurs par défaut en cas d'erreur

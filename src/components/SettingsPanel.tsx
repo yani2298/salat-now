@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { FiX, FiZap, FiMoon, FiSun, FiMapPin, FiRefreshCw, FiEdit2, FiPause, FiPlay, FiBell, FiAlertTriangle, FiCheck } from 'react-icons/fi';
 import clsx from 'clsx';
+import { motion } from 'framer-motion'; // Import motion
+import './SettingsPanel.css'; // Importation du nouveau fichier CSS
 import {
   playAdhan,
   pauseAdhan,
@@ -185,6 +186,22 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
 
+  // Refs pour les timers de maintien
+  const adjustmentIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const adjustmentTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fonction pour arrêter les timers
+  const clearAdjustmentTimers = useCallback(() => {
+    if (adjustmentTimeoutRef.current) {
+      clearTimeout(adjustmentTimeoutRef.current);
+      adjustmentTimeoutRef.current = null;
+    }
+    if (adjustmentIntervalRef.current) {
+      clearInterval(adjustmentIntervalRef.current);
+      adjustmentIntervalRef.current = null;
+    }
+  }, []);
+
   // Charger les configurations au montage
   useEffect(() => {
     // Mettre à jour le volume à partir de la configuration d'adhan
@@ -198,13 +215,6 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
       setSelectedReciter(adhanConfig.type);
     }
   }, []);
-
-  // Animation variants simplifiées
-  const panelVariants = {
-    hidden: { opacity: 0, x: "100%" },
-    visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: "100%" }
-  };
 
   // Rediriger vers l'onglet "prayers" si l'utilisateur était sur "appearance"
   useEffect(() => {
@@ -221,20 +231,15 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
   };
 
   // Fonction pour gérer les changements d'ajustements
-  const handleAdjustmentChange = (prayer: keyof typeof adjustments, value: number) => {
-    // Limiter les ajustements entre -30 et +30 minutes
-    const limitedValue = Math.max(-30, Math.min(30, value));
-
+  const handleAdjustmentChange = useCallback((prayer: keyof typeof adjustments, value: number) => {
+    const newValue = value;
     const newAdjustments = {
       ...adjustments,
-      [prayer]: limitedValue
+      [prayer]: newValue
     };
-
     setAdjustments(newAdjustments);
-
-    // Sauvegarder les ajustements immédiatement
     saveAdjustments(newAdjustments);
-  };
+  }, [adjustments]);
 
   // Function to handle reciter selection
   const handleReciterSelection = (reciter: string) => {
@@ -358,11 +363,15 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
         setIsAdhanPaused(false);
       }
 
+      // Lire les ajustements actuels DEPUIS LE STOCKAGE pour s'assurer d'avoir la dernière version
+      // (utile si 'Réinitialiser' a été cliqué juste avant)
+      const currentAdjustments = getAdjustments();
+
       // Sauvegarder la méthode de calcul
       saveCalculationMethod(calculationMethod);
 
-      // Sauvegarder les ajustements
-      saveAdjustments(adjustments);
+      // Sauvegarder les ajustements (en utilisant la valeur lue du stockage)
+      saveAdjustments(currentAdjustments);
 
       // Sauvegarder la configuration d'Adhan
       const updatedConfig = {
@@ -632,6 +641,32 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
     setDuaEnabledState(enabled);
     setDuaEnabled(enabled);
   };
+
+  // Fonction pour démarrer le maintien
+  const handleAdjustmentHoldStart = useCallback((prayer: keyof typeof adjustments, direction: 'increase' | 'decrease') => {
+    clearAdjustmentTimers(); // S'assurer qu'aucun timer n'est déjà actif
+
+    const changeValue = () => {
+      setAdjustments(prev => {
+        const currentValue = prev[prayer];
+        const newValue = direction === 'increase' ? currentValue + 1 : currentValue - 1;
+        // Appeler handleAdjustmentChange pour la mise à jour et la sauvegarde
+        handleAdjustmentChange(prayer, newValue);
+        return { ...prev, [prayer]: newValue }; // Mettre à jour l'état local aussi
+      });
+    };
+
+    // Premier changement immédiat
+    changeValue();
+
+    // Démarrer le délai avant la répétition
+    adjustmentTimeoutRef.current = setTimeout(() => {
+      // Démarrer l'intervalle de répétition
+      adjustmentIntervalRef.current = setInterval(() => {
+        changeValue();
+      }, 100); // Répéter toutes les 100ms
+    }, 400); // Délai initial de 400ms
+  }, [clearAdjustmentTimers, handleAdjustmentChange]); // Ajout des dépendances
 
   const renderTab = () => {
     switch (activeTab) {
@@ -914,7 +949,7 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
               </div>
             </div>
 
-            {/* Ajustements */}
+            {/* Ajustements - RESTORED */}
             <div className="bg-[#1c1c1e] rounded-xl overflow-hidden">
               <div className="px-5 py-3.5 border-b border-white/5 flex justify-between items-center">
                 <h3 className="text-base font-medium text-white">Ajustements des horaires</h3>
@@ -923,59 +958,75 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                 </span>
               </div>
               <div className="divide-y divide-white/5">
-                {Object.keys(adjustments).map((prayer) => (
-                  <div key={prayer} className="flex items-center justify-between p-4">
-                    <div>
-                      <h5 className="text-white font-medium">
-                        {prayer === 'fajr' ? 'Fajr' :
-                          prayer === 'dhuhr' ? 'Dhuhr' :
-                            prayer === 'asr' ? 'Asr' :
-                              prayer === 'maghrib' ? 'Maghrib' : 'Isha'}
-                      </h5>
-                      <p className="text-xs text-white/50 mt-0.5">
-                        {adjustments[prayer as keyof typeof adjustments] > 0
-                          ? `Retardé de ${adjustments[prayer as keyof typeof adjustments]} min`
-                          : adjustments[prayer as keyof typeof adjustments] < 0
-                            ? `Avancé de ${Math.abs(adjustments[prayer as keyof typeof adjustments])} min`
-                            : "Aucun ajustement"}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <button
-                        className="w-9 h-9 rounded-full bg-[#2c2c2e] hover:bg-[#3c3c3e] text-white flex items-center justify-center transition-colors"
-                        onClick={() => handleAdjustmentChange(prayer as keyof typeof adjustments, adjustments[prayer as keyof typeof adjustments] - 1)}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                      <div className="w-9 text-center font-medium text-white">
-                        {adjustments[prayer as keyof typeof adjustments]}
+                {Object.keys(adjustments).map((prayer) => {
+                  const prayerKey = prayer as keyof typeof adjustments;
+                  return (
+                    <div key={prayerKey} className="flex items-center justify-between p-4">
+                      <div>
+                        <h5 className="text-white font-medium">
+                          {prayerKey.charAt(0).toUpperCase() + prayerKey.slice(1)}
+                        </h5>
+                        <p className="text-xs text-white/50 mt-0.5">
+                          {adjustments[prayerKey] > 0
+                            ? `Retardé de ${adjustments[prayerKey]} min`
+                            : adjustments[prayerKey] < 0
+                              ? `Avancé de ${Math.abs(adjustments[prayerKey])} min`
+                              : "Aucun ajustement"}
+                        </p>
                       </div>
-                      <button
-                        className="w-9 h-9 rounded-full bg-[#2c2c2e] hover:bg-[#3c3c3e] text-white flex items-center justify-center transition-colors"
-                        onClick={() => handleAdjustmentChange(prayer as keyof typeof adjustments, adjustments[prayer as keyof typeof adjustments] + 1)}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                        </svg>
-                      </button>
+
+                      <div className="flex items-center space-x-3">
+                        {/* Bouton Moins */}
+                        <button
+                          className="w-9 h-9 rounded-full bg-[#2c2c2e] hover:bg-[#3c3c3e] text-white flex items-center justify-center transition-colors settings-button"
+                          onMouseDown={() => handleAdjustmentHoldStart(prayerKey, 'decrease')}
+                          onMouseUp={clearAdjustmentTimers}
+                          onMouseLeave={clearAdjustmentTimers}
+                          onTouchStart={() => handleAdjustmentHoldStart(prayerKey, 'decrease')}
+                          onTouchEnd={clearAdjustmentTimers}
+                          aria-label={`Diminuer l'ajustement pour ${prayerKey}`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        <div className="w-9 text-center font-medium text-white">
+                          {adjustments[prayerKey]}
+                        </div>
+                        {/* Bouton Plus */}
+                        <button
+                          className="w-9 h-9 rounded-full bg-[#2c2c2e] hover:bg-[#3c3c3e] text-white flex items-center justify-center transition-colors settings-button"
+                          onMouseDown={() => handleAdjustmentHoldStart(prayerKey, 'increase')}
+                          onMouseUp={clearAdjustmentTimers}
+                          onMouseLeave={clearAdjustmentTimers}
+                          onTouchStart={() => handleAdjustmentHoldStart(prayerKey, 'increase')}
+                          onTouchEnd={clearAdjustmentTimers}
+                          aria-label={`Augmenter l'ajustement pour ${prayerKey}`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="p-4 border-t border-white/5">
                 <button
                   className="w-full py-3 rounded-xl flex justify-center items-center text-white font-medium
                     bg-[#2c2c2e] hover:bg-[#3c3c3e] transition-all"
-                  onClick={() => setAdjustments({
+                  onClick={() => {
+                    const defaultAdjustments = {
                     fajr: 0,
                     dhuhr: 0,
                     asr: 0,
                     maghrib: 0,
                     isha: 0
-                  })}
+                    };
+                    setAdjustments(defaultAdjustments); // Update local state
+                    saveAdjustments(defaultAdjustments); // Restore immediate save
+                  }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
@@ -987,6 +1038,7 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                 </p>
               </div>
             </div>
+            {/* End of Ajustements */}
           </div>
         );
 
@@ -1022,11 +1074,7 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                           }
                         )}>
                           {selectedReciter === type.id && (
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="w-2 h-2 bg-white rounded-full"
-                            />
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
                           )}
                         </div>
 
@@ -1252,10 +1300,8 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                 </div>
                 
                 {/* Bouton de test pour écouter le Dua - style Apple */}
-                <motion.button
+                <button
                   className="flex items-center gap-3 px-4 py-3 mt-4 w-full bg-gradient-to-r from-indigo-500 to-blue-600 rounded-xl shadow-md hover:shadow-lg text-white"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     // Si le Dua est déjà en cours de lecture
                     if (isDuaPlaying && duaAudioRef) {
@@ -1329,7 +1375,7 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                     </span>
                     <span className="text-xs text-blue-100">Tester l'invocation après l'Adhan</span>
                   </div>
-                </motion.button>
+                </button>
               </div>
             </div>
 
@@ -1630,10 +1676,8 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                         : "Vous utilisez la dernière version"}
                     </p>
                   </div>
-                  <motion.button
+                  <button
                     className="px-3 py-2 rounded-lg flex items-center text-white text-sm bg-blue-600 hover:bg-blue-500 transition-colors shadow-md"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       // Afficher un indicateur de chargement temporaire
                       setIsUpdateAvailable(false);
@@ -1660,7 +1704,7 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
                     Vérifier
-                  </motion.button>
+                  </button>
                 </div>
                 
                 {isUpdateAvailable && (
@@ -1674,10 +1718,8 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                         <p className="text-blue-200/70 text-xs">Cliquez pour télécharger et installer</p>
                       </div>
                     </div>
-                    <motion.button
+                    <button
                       className="ml-2 px-2.5 py-1.5 rounded-lg flex items-center text-white text-xs bg-blue-600 hover:bg-blue-500"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
                       onClick={() => {
                         setShowUpdateNotification(true);
                       }}
@@ -1688,7 +1730,7 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                       </svg>
                       Installer
-                    </motion.button>
+                    </button>
                   </div>
                 )}
               </div>
@@ -1746,10 +1788,8 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                 <h3 className="text-base font-medium text-white">Quitter l'application</h3>
               </div>
               <div className="p-5">
-                <motion.button
+                <button
                   className="w-full py-3.5 rounded-xl bg-[#fd4f57] hover:bg-[#ea3d46] text-white font-medium flex items-center justify-center"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     if (window.electron && window.electron.quitApp) {
                       window.electron.quitApp();
@@ -1761,7 +1801,7 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
                     <line x1="12" y1="2" x2="12" y2="12"></line>
                   </svg>
                   Quitter Salat Now
-                </motion.button>
+                </button>
                 <p className="text-xs text-white/50 mt-2 text-center">
                   Ferme complètement l'application et la retire de la barre de menu
                 </p>
@@ -1835,180 +1875,189 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
     }
   }, [isOpen]);
 
-  // Rendu conditionnel du panel
-  if (!isOpen) return null;
+  // Effet pour fermer le panneau avec la touche Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClose();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
+  // Rendu conditionnel du panel - REMOVED, AnimatePresence handles this
+  // if (!isOpen) return null;
+
+  // The component now directly returns the animated structure
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      {/* Fond semi-transparent qui ferme la fenêtre au clic */}
-      <div
-        className="absolute inset-0 bg-transparent"
-        onClick={onClose}
+    // No need for the outer fragment or overlay click handler here, 
+    // assuming AnimatePresence in App.tsx wraps this component directly.
+    // If an overlay with fade is needed, it should be implemented in App.tsx
+    // or this component needs refactoring.
+
+    // Main panel animated with framer-motion
+    <motion.div 
+      className="settings-panel" // Removed conditional 'visible' class
+      initial={{ x: '100%', opacity: 0 }} // Start off-screen right, invisible
+      animate={{ x: 0, opacity: 1 }}      // Animate to on-screen, visible
+      exit={{ x: '100%', opacity: 0 }}    // Animate off-screen right, invisible
+      transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }} // Animation config
+    >
+            {/* En-tête principal - Style Apple plus minimaliste */}
+            <div className="sticky top-0 z-10 backdrop-blur-lg bg-black/70 border-b border-white/10">
+              <div className="flex items-center justify-between px-6 py-4">
+                <h2 className="text-xl font-medium text-white">Réglages</h2>
+                <button
+                  onClick={handleClose}
+                  className="settings-button w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white"
+                  aria-label="Fermer"
+                >
+                  <FiX size={18} />
+                </button>
+              </div>
+
+        {/* Tabs de navigation - RESTORED */}
+              <div className="px-6 pb-2">
+                <div className="flex space-x-1 bg-[#1c1c1e] p-1 rounded-xl">
+                  <button
+                    className={clsx(
+                      "flex-1 py-2 text-sm font-medium rounded-lg settings-button",
+                      activeTab === 'prayers'
+                        ? "bg-white/10 text-white shadow-sm"
+                        : "text-gray-400 hover:text-gray-300"
+                    )}
+                    onClick={() => setActiveTab('prayers')}
+                  >
+                    Prières
+                  </button>
+                  <button
+                    className={clsx(
+                      "flex-1 py-2 text-sm font-medium rounded-lg settings-button",
+                      activeTab === 'adhan'
+                        ? "bg-white/10 text-white shadow-sm"
+                        : "text-gray-400 hover:text-gray-300"
+                    )}
+                    onClick={() => setActiveTab('adhan')}
+                  >
+                    Adhan
+                  </button>
+                  <button
+                    className={clsx(
+                      "flex-1 py-2 text-sm font-medium rounded-lg settings-button",
+                      activeTab === 'performance'
+                        ? "bg-white/10 text-white shadow-sm"
+                        : "text-gray-400 hover:text-gray-300"
+                    )}
+                    onClick={() => setActiveTab('performance')}
+                  >
+                    Perf
+                  </button>
+                  <button
+                    className={clsx(
+                      "flex-1 py-2 text-sm font-medium rounded-lg settings-button",
+                      activeTab === 'about'
+                        ? "bg-white/10 text-white shadow-sm"
+                        : "text-gray-400 hover:text-gray-300"
+                    )}
+                    onClick={() => setActiveTab('about')}
+                  >
+                    À propos
+                  </button>
+                </div>
+              </div>
+        {/* End of Tabs de navigation */}
+            </div>
+
+      {/* Guide des permissions (Remains inside the panel) */}
+      <PermissionGuide 
+        isOpen={isPermissionGuideOpen}
+        onClose={() => setIsPermissionGuideOpen(false)}
+        onRequestPermission={requestLocationPermission}
       />
       
-      {/* Notification de mise à jour */}
-      <UpdateNotification
-        isVisible={showUpdateNotification}
-        updateInfo={updateInfo}
-        progress={updateProgress}
-        isDownloading={isUpdateDownloading}
-        isDownloaded={isUpdateDownloaded}
-        error={updateError}
-        onClose={() => setShowUpdateNotification(false)}
-        onDownload={() => {
-          window.electron.downloadUpdate();
-        }}
-        onInstall={() => {
-          window.electron.installUpdate();
-        }}
-      />
+      {/* Update Notification (Remains inside the panel) */}
+      {/* Consider moving this modal outside if it should overlay the settings */}
+       <UpdateNotification
+          isVisible={showUpdateNotification} // Keep using isVisible for its internal logic
+          updateInfo={updateInfo}
+          progress={updateProgress}
+          isDownloading={isUpdateDownloading}
+          isDownloaded={isUpdateDownloaded}
+          error={updateError}
+          onClose={() => setShowUpdateNotification(false)}
+          onDownload={() => {
+            window.electron.downloadUpdate();
+          }}
+          onInstall={() => {
+            window.electron.installUpdate();
+          }}
+        />
 
-      <AnimatePresence>
-        <motion.div
-          className="fixed inset-0 bg-[#0a0a0a] bg-opacity-95 z-50 overflow-auto"
-          variants={panelVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-        >
-          {/* En-tête principal - Style Apple plus minimaliste */}
-          <div className="sticky top-0 z-10 backdrop-blur-lg bg-black/70 border-b border-white/10">
-            <div className="flex items-center justify-between px-6 py-4">
-              <h2 className="text-xl font-medium text-white">Réglages</h2>
-              <button
-                onClick={handleClose}
-                className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white transition-colors"
-                aria-label="Fermer"
-              >
-                <FiX size={18} />
-              </button>
-            </div>
-
-            {/* Tabs de navigation - style iOS 17 */}
-            <div className="px-6 pb-2">
-              <div className="flex space-x-1 bg-[#1c1c1e] p-1 rounded-xl">
-                <button
-                  className={clsx(
-                    "flex-1 py-2 text-sm font-medium rounded-lg transition-all",
-                    activeTab === 'prayers'
-                      ? "bg-white/10 text-white shadow-sm"
-                      : "text-gray-400 hover:text-gray-300"
-                  )}
-                  onClick={() => setActiveTab('prayers')}
-                >
-                  Prières
-                </button>
-                <button
-                  className={clsx(
-                    "flex-1 py-2 text-sm font-medium rounded-lg transition-all",
-                    activeTab === 'adhan'
-                      ? "bg-white/10 text-white shadow-sm"
-                      : "text-gray-400 hover:text-gray-300"
-                  )}
-                  onClick={() => setActiveTab('adhan')}
-                >
-                  Adhan
-                </button>
-                {/* Onglet Apparence temporairement masqué */}
-                {/*
-                <button
-                  className={clsx(
-                    "flex-1 py-2 text-sm font-medium rounded-lg transition-all",
-                    activeTab === 'appearance'
-                      ? "bg-white/10 text-white shadow-sm"
-                      : "text-gray-400 hover:text-gray-300"
-                  )}
-                  onClick={() => setActiveTab('appearance')}
-                >
-                  Apparence
-                </button>
-                */}
-                <button
-                  className={clsx(
-                    "flex-1 py-2 text-sm font-medium rounded-lg transition-all",
-                    activeTab === 'performance'
-                      ? "bg-white/10 text-white shadow-sm"
-                      : "text-gray-400 hover:text-gray-300"
-                  )}
-                  onClick={() => setActiveTab('performance')}
-                >
-                  Perf
-                </button>
-                <button
-                  className={clsx(
-                    "flex-1 py-2 text-sm font-medium rounded-lg transition-all",
-                    activeTab === 'about'
-                      ? "bg-white/10 text-white shadow-sm"
-                      : "text-gray-400 hover:text-gray-300"
-                  )}
-                  onClick={() => setActiveTab('about')}
-                >
-                  À propos
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Section profil utilisateur repensée - style Apple */}
-          <div className="px-6 py-5 mt-2">
-            <div className="flex items-center bg-white/5 p-4 rounded-xl mb-6">
-              <div className="relative">
-                <div className="h-16 w-16 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                  <img
-                    src={`https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(userName)}&backgroundColor=transparent&shapeColor=ffffff`}
-                    alt="Avatar"
-                    className="h-full w-full object-cover p-2"
-                  />
+      {/* Section profil utilisateur - RESTORED */}
+            <div className="px-6 py-5 mt-2">
+              <div className="flex items-center bg-white/5 p-4 rounded-xl mb-6">
+                <div className="relative">
+                  <div className="h-16 w-16 rounded-full overflow-hidden border border-white/10 bg-white/5">
+                    <img
+                      src={`https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(userName)}&backgroundColor=transparent&shapeColor=ffffff`}
+                      alt="Avatar"
+                      className="h-full w-full object-cover p-2"
+                    />
+                  </div>
+                  <button
+              onClick={startEditingName} // Uses startEditingName
+                    className="settings-button absolute -bottom-1 -right-1 p-1.5 rounded-full bg-[#1c1c1e] border border-[#2c2c2e] text-white shadow-md"
+                  >
+              <FiEdit2 size={12} /> {/* Uses FiEdit2 */}
+                  </button>
                 </div>
-                <button
-                  onClick={startEditingName}
-                  className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-[#1c1c1e] border border-[#2c2c2e] text-white shadow-md"
-                >
-                  <FiEdit2 size={12} />
-                </button>
-              </div>
 
-              <div className="ml-4 flex-grow">
-                {isEditingName ? (
-                  <input
-                    ref={nameInputRef}
-                    type="text"
-                    value={userName}
-                    onChange={handleNameChange}
-                    onBlur={finishEditingName}
-                    onKeyDown={handleNameKeyDown}
-                    className="bg-[#1c1c1e] text-white text-lg font-medium px-3 py-1.5 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    maxLength={25}
-                  />
-                ) : (
-                  <h2 className="text-lg font-medium text-white">
-                    {userName}
-                  </h2>
-                )}
-                <div className="mt-1 bg-white/5 px-2 py-0.5 inline-block rounded-md">
-                  <span className="text-xs text-white/60">Compte personnel</span>
+                <div className="ml-4 flex-grow">
+            {isEditingName ? ( // Uses isEditingName
+                    <input
+                      ref={nameInputRef}
+                      type="text"
+                      value={userName}
+                onChange={handleNameChange} // Uses handleNameChange
+                      onBlur={finishEditingName}
+                onKeyDown={handleNameKeyDown} // Uses handleNameKeyDown
+                      className="bg-[#1c1c1e] text-white text-lg font-medium px-3 py-1.5 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      maxLength={25}
+                    />
+                  ) : (
+                    <h2 className="text-lg font-medium text-white">
+                      {userName}
+                    </h2>
+                  )}
+                  <div className="mt-1 bg-white/5 px-2 py-0.5 inline-block rounded-md">
+                    <span className="text-xs text-white/60">Compte personnel</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+      {/* End of Section profil utilisateur */}
 
-          {/* Contenu avec padding */}
-          <div className="px-6 pb-28 mt-1">
-            {renderTab()}
-          </div>
+            {/* Contenu de l'onglet avec classe tab-container pour optimisation */}
+            <div className="tab-container px-6 pb-20 mt-1"> {/* Augmentation padding-bottom */} 
+              {renderTab()}
+            </div>
 
-          {/* Boutons d'action fixés en bas style iOS 17 */}
-          <div className="fixed bottom-0 left-0 right-0 py-4 px-6 border-t border-white/5 bg-black/40 backdrop-blur-lg">
-            <div className="flex space-x-3">
+            {/* Les boutons sont maintenant rendus en dehors de ce div */}
+          <div id="action-bar-fixed" className="action-bar">
+            <div className="action-buttons">
               <button
+                id="cancel-button" 
+                className="settings-button" // Utilisation de la classe CSS
                 onClick={handleClose}
-                className="flex-1 py-3.5 px-4 bg-[#2c2c2e] hover:bg-[#3c3c3e] text-white font-medium rounded-xl transition-colors"
               >
                 Annuler
               </button>
               <button
+                id="save-button" 
+                className="settings-button" // Utilisation de la classe CSS
                 onClick={handleSaveSettings}
-                className="flex-1 py-3.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-colors flex items-center justify-center"
                 disabled={isGeolocating}
               >
                 {isGeolocating ? (
@@ -2022,16 +2071,7 @@ const SettingsPanel = ({ isOpen, onClose }: SettingsPanelProps) => {
               </button>
             </div>
           </div>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Guide des permissions de localisation */}
-      <PermissionGuide 
-        isOpen={isPermissionGuideOpen}
-        onClose={() => setIsPermissionGuideOpen(false)}
-        onRequestPermission={requestLocationPermission}
-      />
-    </div>
+    </motion.div>
   );
 };
 
