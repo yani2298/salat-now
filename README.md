@@ -1,87 +1,107 @@
 
 # 🕌 Salat Now
 
-<div align="center">
-  <img width="640" height="640" alt="favicon" src="https://github.com/user-attachments/assets/02f7df8b-341e-435f-8997-a5f9afa74dbf" />
+> **Professional macOS menu bar application for Islamic prayer times**
 
-  <h3>Prayer times reminder application for Muslims</h3>
-  
-  [![GitHub release](https://img.shields.io/github/release/yani2298/salat-now.svg)](https://github.com/yani2298/salat-now/releases)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-4.9+-blue.svg)](https://www.typescriptlang.org/)
-  [![Electron](https://img.shields.io/badge/Electron-23+-green.svg)](https://www.electronjs.org/)
-  [![React](https://img.shields.io/badge/React-19+-61dafb.svg)](https://reactjs.org/)
-  ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
-  [![Language](https://img.shields.io/badge/Language-French-blue.svg)](https://github.com/yani2298/salat-now)
-  [![npm package](https://img.shields.io/badge/npm-salat--times--calculator-orange.svg)](https://www.npmjs.com/package/salat-times-calculator)
-  [![GitHub Package Registry](https://img.shields.io/badge/GitHub-@yani2298/salat--times--calculator-blue.svg)](https://github.com/yani2298/salat-now/packages)
+<div align="center">
+
+[![macOS](https://img.shields.io/badge/macOS-10.15%2B-blue.svg)](https://www.apple.com/macos)
+[![Swift](https://img.shields.io/badge/Built%20with-Electron-47848f.svg)](https://www.electronjs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![NPM Package](https://img.shields.io/npm/v/salat-times-calculator.svg)](https://www.npmjs.com/package/salat-times-calculator)
+[![GitHub Package Registry](https://img.shields.io/badge/GitHub-@yani2298/salat--times--calculator-blue.svg)](https://github.com/yani2298/salat-now/packages)
+
+<img width="200" height="200" alt="Salat Now Icon" src="https://github.com/user-attachments/assets/02f7df8b-341e-435f-8997-a5f9afa74dbf" />
+
+**Discreet, accurate, and beautiful prayer times in your macOS menu bar**
+
+[Download Latest Release](https://github.com/yani2298/salat-now/releases) • [View Documentation](#installation) • [Report Issue](https://github.com/yani2298/salat-now/issues)
+
 </div>
+
+---
+
+## 📋 About
+
+**Salat Now** is a professional macOS menu bar application designed for Muslim professionals who need quick, discreet access to accurate prayer times without leaving their workflow.
+
+Built specifically for macOS, it integrates seamlessly into your menu bar, providing prayer times, weather information, and Hijri calendar data at a glance.
+
+### 🎯 Key Features
+
+- **🖥️ Native macOS Menu Bar Integration** - Quick access without interrupting your work
+- **🕰️ Accurate Prayer Times** - Multiple calculation methods (ISNA, MWL, Karachi, etc.)
+- **🌍 Global Location Support** - Automatic city detection or manual selection
+- **🌤️ Weather Integration** - Current conditions alongside prayer times
+- **🌙 Hijri Calendar** - Islamic date display with important events
+- **🔔 Smart Notifications** - Customizable prayer reminders
+- **⚙️ Professional Interface** - Clean, minimal design that respects your workflow
+- **🔒 Privacy First** - No data collection, works offline
+- **🆓 Completely Free** - No subscriptions, no ads, open source
+
+---
+
+## 🚀 Installation
+
+### Download for macOS
+
+1. **Download** the latest release from [GitHub Releases](https://github.com/yani2298/salat-now/releases)
+2. **Unzip** the downloaded file
+3. **Move** `Salat Now.app` to your `/Applications` folder
+4. **Launch** the app - it will appear in your menu bar
+5. **Grant location permission** for automatic prayer times (optional)
+
+### System Requirements
+
+- **macOS 10.15** (Catalina) or later
+- **Location Services** (optional, for automatic city detection)
 
 ---
 
 ## 📦 NPM Package
 
-**Salat Now** also provides a **professional npm package** for developers who want to integrate Islamic prayer times calculation into their own applications:
+The prayer calculation engine is also available as a standalone npm package for developers building Islamic applications.
 
-**📦 Public npm:**
+### Installation
+
 ```bash
+# Public npm registry
 npm install salat-times-calculator
-```
 
-**🐙 GitHub Packages:**
-```bash
+# GitHub Package Registry  
 npm install @yani2298/salat-times-calculator
 ```
 
-**Quick usage:**
+### Quick Usage
+
 ```typescript
-// Import from public npm OR GitHub packages
 import { SalatTimesCalculator, CalculationMethod } from 'salat-times-calculator';
-// OR: import { SalatTimesCalculator, CalculationMethod } from '@yani2298/salat-times-calculator';
 
 const calculator = new SalatTimesCalculator();
+
+// Get prayer times for any city
 const prayerTimes = await calculator.getPrayerTimes({
   city: 'Paris',
   country: 'France',
   calculationMethod: CalculationMethod.ISNA
 });
+
+console.log('Next prayer:', calculator.getCurrentPrayer(prayerTimes));
 ```
 
-**Perfect for:**
-- 📱 Mobile apps development
-- 🌐 Web applications
-- 🔧 Backend API services  
-- 🕌 Islamic community websites
-- ⏰ Prayer reminder systems
-
-👉 **[View npm package →](https://www.npmjs.com/package/salat-times-calculator)** | **[View GitHub package →](https://github.com/yani2298/salat-now/packages)**
+📚 **Documentation**: [View npm package](https://www.npmjs.com/package/salat-times-calculator) • [View GitHub package](https://github.com/yani2298/salat-now/packages)
 
 ---
 
-## 📖 About
+## 🛠️ Development
 
-**Salat Now** is a modern, elegant desktop application designed to help Muslims accurately track prayer times. Built with the latest web technologies and integrated into a native Electron app, it provides a smooth and professional user experience.
+### Prerequisites
 
-> **🇫🇷 Language Note:** This application is currently available in **French**. We welcome contributions to add support for other languages! See the [Contributing](#-contributing) section below.
+- **Node.js** 18.0+
+- **macOS** development environment
+- **Xcode Command Line Tools**
 
-### 🌟 Key Features
-
-- **🕰️ Accurate Prayer Times** - Calculations based on your exact geolocation
-- **🔔 Smart Notifications** - Automatic reminders with customizable adhan sounds
-- **🌍 Auto-Location Detection** - Automatic detection of your city and country
-- **🌤️ Weather Integration** - Display local weather conditions
-- **🌙 Hijri Calendar** - Islamic calendar display
-- **🎨 Modern Interface** - Elegant design with dark/light mode support
-- **⚡ Optimized Performance** - Fast and responsive application
-- **🔧 Customizable Settings** - Calculation methods, adhan sounds, display preferences
-- **🖥️ Native App** - Perfect integration with macOS, Windows, and Linux
-
-## 🚀 Quick Start
-
-### Direct Download
-Download the latest version from [GitHub Releases](https://github.com/yani2298/salat-now/releases).
-
-### Build from Source
+### Setup
 
 ```bash
 # Clone the repository
@@ -91,210 +111,144 @@ cd salat-now
 # Install dependencies
 npm install
 
-# Run in development mode
+# Start development server
 npm run electron:dev
+
+# Build for production
+npm run electron:build
 ```
 
-## 🛠️ Development
-
-### Prerequisites
-- **Node.js** 18+ 
-- **npm** 8+
-- **Git**
-
-### Available Scripts
-
-```bash
-# Development
-npm run dev                    # Web interface only
-npm run electron:dev          # Electron app in development mode
-
-# Build
-npm run build                 # Production build
-npm run build:optimized       # Optimized build with fonts
-npm run electron:build        # Build Electron app for distribution
-
-# Packaging
-npm run package              # Package for macOS (x64)
-npm run package:all          # Package for all platforms
-
-# Tools
-npm run lint                 # Code verification
-npm run preview              # Preview the build
-```
-
-### Project Architecture
+### Project Structure
 
 ```
 salat-now/
-├── src/
-│   ├── components/          # React Components
-│   │   ├── CityHeader.tsx
-│   │   ├── CountdownTimer.tsx
-│   │   ├── PrayerCard.tsx
-│   │   ├── PrayerList.tsx
-│   │   ├── SettingsPanel.tsx
-│   │   └── WeatherIcon.tsx
-│   ├── services/           # Business Logic & Services
-│   │   ├── adhanService.ts
-│   │   ├── locationService.ts
-│   │   ├── prayerService.ts
-│   │   └── weatherService.ts
-│   ├── types/              # TypeScript Definitions
-│   └── App.tsx            # Main Component
-├── electron/              # Electron Configuration
-│   ├── main.cjs
-│   └── preload.cjs
-├── public/               # Static Assets
-│   └── audio/           # Adhan Sounds
-└── scripts/             # Build Scripts
+├── src/                    # React application source
+│   ├── components/         # UI components
+│   ├── services/          # Prayer times, weather, location services
+│   └── types/             # TypeScript definitions
+├── electron/              # Electron main process
+├── public/                # Static assets
+└── build/                 # Production builds
 ```
 
-## 🔧 Technologies Used
+---
 
-<div align="center">
+## 🏗️ Architecture
 
-| Frontend | Backend | Desktop | Build Tools |
-|----------|---------|---------|-------------|
-| ![React](https://img.shields.io/badge/React-19-61dafb?logo=react) | ![Node.js](https://img.shields.io/badge/Node.js-18+-green?logo=node.js) | ![Electron](https://img.shields.io/badge/Electron-23+-blue?logo=electron) | ![Vite](https://img.shields.io/badge/Vite-6+-purple?logo=vite) |
-| ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript) | ![Axios](https://img.shields.io/badge/Axios-1.8-red?logo=axios) | ![Electron Builder](https://img.shields.io/badge/Electron_Builder-26+-orange) | ![ESLint](https://img.shields.io/badge/ESLint-9+-red?logo=eslint) |
-| ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-cyan?logo=tailwindcss) | | | ![PostCSS](https://img.shields.io/badge/PostCSS-8+-orange?logo=postcss) |
-| ![Framer Motion](https://img.shields.io/badge/Framer_Motion-12+-pink?logo=framer) | | | |
+**Salat Now** follows a clean, modular architecture optimized for menu bar applications:
 
-</div>
+- **Frontend**: React 19 with TypeScript for type safety and modern UI patterns
+- **Backend**: Electron for native macOS integration and menu bar functionality  
+- **API Integration**: Aladhan API for accurate prayer calculations
+- **State Management**: React hooks with local storage persistence
+- **Styling**: Tailwind CSS for consistent, maintainable design
 
-## 📱 Screenshots
+---
 
-<div align="center">
-  <img width="351" height="551" alt="3" src="https://github.com/user-attachments/assets/8bb4fd9b-7023-4ba7-8a95-1319525c67bc" />
-<img width="351" height="577" alt="1" src="https://github.com/user-attachments/assets/67921412-0351-4e57-a8d6-4823b77290c0" />
+## 🔧 Technologies
 
-  <img src="docs/screenshots/main-interface.png" alt="Main Interface" width="45%">
-  <img src="docs/screenshots/settings-panel.png" alt="Settings Panel" width="45%">
-  
-  <p><em>Main interface and settings panel (in French)</em></p>
-</div>
+| Category | Technology |
+|----------|------------|
+| **Framework** | Electron + React 19 |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS |
+| **APIs** | Aladhan Prayer Times API |
+| **Build System** | Vite |
+| **Testing** | Jest (planned) |
 
-## ⚙️ Configuration
+---
 
-### Supported Calculation Methods
-- **University of Islamic Sciences, Karachi**
-- **Islamic World League**
-- **Umm Al-Qura University, Makkah**
-- **Egyptian General Authority of Survey**
-- **And more...**
+## 🌍 Internationalization
 
-### Customization Options
-- Choice of muezzins for adhan
-- Notification settings
-- Display preferences
-- Geolocation configuration
+**Current Language**: French 🇫🇷
 
-## 🌐 Internationalization
+**Seeking Contributors** for translation to:
+- **Arabic** 🇸🇦 (عربي)
+- **English** 🇺🇸
+- **Urdu** 🇵🇰 (اردو)
+- **Indonesian** 🇮🇩 (Bahasa Indonesia)
+- **Turkish** 🇹🇷 (Türkçe)
+- **Malay** 🇲🇾 (Bahasa Melayu)
 
-**Current Language:** French 🇫🇷
+[**Request Translation**](https://github.com/yani2298/salat-now/issues/new?assignees=&labels=translation&template=translation_request.md) • [**Translation Guide**](.github/TRANSLATION_GUIDE.md)
 
-**Want to help translate?** We welcome contributions to add support for more languages! Here's how you can help:
-
-### 🤝 Adding New Languages
-
-1. **Create language files** in `src/locales/[language-code].json`
-2. **Translate interface strings** (prayer names, settings, etc.)
-3. **Update the language selector** in `SettingsPanel.tsx`
-4. **Submit a Pull Request** with your translation
-
-### 🗣️ Languages We'd Love to Support
-- 🇸🇦 Arabic (العربية)
-- 🇬🇧 English
-- 🇹🇷 Turkish (Türkçe)  
-- 🇮🇩 Indonesian (Bahasa Indonesia)
-- 🇵🇰 Urdu (اردو)
-- 🇧🇩 Bengali (বাংলা)
-- 🇲🇾 Malay (Bahasa Melayu)
-- And more!
-
-**Missing your language?** Open an issue and let's discuss adding it!
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md).
+We welcome contributions from the global Muslim developer community!
 
-### How to Contribute
+### Ways to Contribute
 
-#### 🌐 Language Contributions (Most Needed!)
-1. Fork the project
-2. Create a language branch (`git checkout -b lang/arabic`)
-3. Add translation files and update components
-4. Test the new language integration
-5. Submit a Pull Request
+- 🐛 **Report bugs** using our [issue templates](.github/ISSUE_TEMPLATE/)
+- 💡 **Suggest features** for improving the user experience
+- 🌍 **Add translations** to make the app accessible globally
+- 📝 **Improve documentation** for better developer experience
+- 🔧 **Submit pull requests** for bug fixes or enhancements
 
-#### 🐛 Bug Fixes & Features
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Development Guidelines
 
-### 🛠️ Development Guidelines
-- Follow TypeScript best practices
-- Maintain Islamic prayer calculation accuracy
-- Ensure cross-platform compatibility
-- Write clear, commented code
-- Test on multiple operating systems
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+Please read our [Contributing Guide](CONTRIBUTING.md) for detailed information.
+
+---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-## 📧 Contact & Support
+---
 
-**Developer:** Anis Mosbah
-- GitHub: [@yani2298](https://github.com/yani2298)
+## 👨‍💻 Author
+
+**Anis Mosbah** ([@yani2298](https://github.com/yani2298))
 - Email: contact@salatnow.app
+- Building Islamic software for the global ummah
 
-### 🐛 Bug Reports
-Found a bug? Please open an [issue](https://github.com/yani2298/salat-now/issues) with:
-- Operating system and version
-- App version
-- Steps to reproduce
-- Expected vs actual behavior
-
-### 💡 Feature Requests
-Have an idea? We'd love to hear it! Open a [feature request](https://github.com/yani2298/salat-now/issues/new?template=feature_request.md).
+---
 
 ## 🙏 Acknowledgments
 
-- Muslim developer community
-- Open source contributors
-- Islamic data APIs used
-- Beta testers and users
-- **Translation contributors** (we appreciate your help!)
+- **Aladhan API** - Reliable Islamic prayer times calculations
+- **Islamic Network** - Open source Islamic software inspiration  
+- **macOS Developer Community** - Menu bar app best practices
+- **Global Muslim Developers** - Feature requests and testing
 
-## 🚀 Roadmap
+---
 
-### 🎯 Upcoming Features
-- [ ] **Multi-language support** (Priority #1)
-- [ ] Qibla direction compass
-- [ ] Prayer statistics and tracking
-- [ ] Mosque finder integration
-- [ ] Custom themes and layouts
-- [ ] Mobile companion app
-- [ ] Community features
+## 🗺️ Roadmap
 
-### 🌍 Localization Priority
-1. **Arabic** - The language of Islam
-2. **English** - International reach
-3. **Turkish** - Large Muslim population
-4. **Indonesian** - Largest Muslim country
-5. **Urdu** - Pakistan/India region
-6. **Bengali** - Bangladesh region
+### 🎯 Short Term (Q1 2025)
+- [ ] **English translation** completion
+- [ ] **Arabic RTL support** implementation
+- [ ] **Advanced notification** customization
+- [ ] **Prayer time adjustments** UI enhancement
+
+### 🚀 Medium Term (Q2-Q3 2025)
+- [ ] **Multiple location** support for travelers
+- [ ] **Qibla direction** indicator
+- [ ] **Islamic calendar** events integration
+- [ ] **Community prayer times** sharing
+
+### 🌟 Long Term (Q4 2025+)
+- [ ] **iOS companion app** for seamless sync
+- [ ] **Widget support** for macOS Big Sur+
+- [ ] **Apple Watch** complications
+- [ ] **Mosque finder** integration
 
 ---
 
 <div align="center">
-  <p>Made with ❤️ for the global Muslim community</p>
-  <p><strong>Currently in French 🇫🇷 | Help us add your language! 🌍</strong></p>
-  
-  [![GitHub stars](https://img.shields.io/github/stars/yani2298/salat-now.svg?style=social&label=Star)](https://github.com/yani2298/salat-now)
-  [![GitHub forks](https://img.shields.io/github/forks/yani2298/salat-now.svg?style=social&label=Fork)](https://github.com/yani2298/salat-now/fork)
+
+**Made with ❤️ for the global Muslim community**
+
+⭐ **Star this repository** if it helps you in your daily prayers
+
+[Report Bug](https://github.com/yani2298/salat-now/issues) • [Request Feature](https://github.com/yani2298/salat-now/issues) • [Join Discussion](https://github.com/yani2298/salat-now/discussions)
+
 </div>

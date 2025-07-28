@@ -1,126 +1,184 @@
-# 📱 Social Media Templates - Ready to Copy & Paste
+# 📱 Professional Social Media Templates - macOS Menu Bar App
 
 ## 🐦 Twitter/X Templates
 
-### **Template 1: Technical**
+### **Template 1: Professional Tech**
 ```
-🕌 Just released Salat Now - a FREE open-source prayer times app built with React 19 + Electron!
+🕌 Introducing Salat Now - A professional macOS menu bar app for Islamic prayer times.
 
-✅ Cross-platform (Mac/Windows/Linux)
-✅ No ads, no tracking
-✅ Beautiful UI with weather integration  
-✅ Open source + npm package
+Built for Muslim professionals who need discreet, accurate prayer times in their workflow.
 
-#IslamicTech #OpenSource #React #PrayerTimes
+✅ Native macOS menu bar integration
+✅ Professional, minimal interface  
+✅ Privacy-first (no data collection)
+✅ Open source + npm package for developers
+
+#macOS #IslamicTech #MenuBarApp #OpenSource
 
 GitHub: https://github.com/yani2298/salat-now
 ```
 
-### **Template 2: Community**
+### **Template 2: Developer-Focused**
 ```
-Built something for my Muslim brothers and sisters 🤲
+⚡ New TypeScript npm package: salat-times-calculator
 
-Salat Now - a completely FREE desktop prayer app:
-• Accurate prayer times worldwide
-• Beautiful interface in French (seeking translators!)
-• No subscriptions, no ads
-• 100% open source
+Professional Islamic prayer times calculation library:
+• Multiple calculation methods (ISNA, MWL, Karachi...)
+• Built-in caching & error handling
+• Used in production (Salat Now macOS app)
+• Full TypeScript support
 
-Help make it better: https://github.com/yani2298/salat-now
-
-#Muslim #Prayer #OpenSource
-```
-
-### **Template 3: Developer**
-```
-🚀 New npm package: salat-times-calculator
-
-Perfect for Islamic app developers:
-• Multiple calculation methods
-• Built-in caching
-• TypeScript support
-• Used in production
+Perfect for Islamic app developers.
 
 `npm install salat-times-calculator`
 
-Docs: https://www.npmjs.com/package/salat-times-calculator
+#TypeScript #npm #IslamicDev #API #macOS
+```
 
-#npm #TypeScript #IslamicDev #API
+### **Template 3: Community**
+```
+Built Salat Now - a menu bar prayer times app for macOS. 
+
+For Muslim professionals who need prayer times accessible without interrupting their work.
+
+Currently in French, seeking contributors for:
+🇸🇦 Arabic
+🇺🇸 English  
+🇹🇷 Turkish
+🇮🇩 Indonesian
+
+Help make Islamic software accessible globally.
+
+#Muslim #macOS #OpenSource #Translation
 ```
 
 ## 📘 LinkedIn Templates
 
 ### **Professional Post**
 ```
-Excited to share my latest project: Salat Now - an open-source desktop application for Muslim prayer times.
+Excited to share Salat Now - a professional macOS menu bar application for Islamic prayer times.
 
-🎯 The Challenge:
-Most prayer apps are mobile-only, filled with ads, or require subscriptions. Muslim professionals need a clean, desktop solution.
+🎯 Problem Solved:
+Muslim professionals need quick access to accurate prayer times without disrupting their workflow. Most existing solutions are mobile-focused or intrusive desktop applications.
 
-💡 The Solution:
-Built with React 19 and Electron, Salat Now provides:
-• Accurate global prayer calculations
-• Weather integration
-• Cross-platform compatibility
-• 100% free and open source
+💡 Solution:
+A native macOS menu bar app that provides:
+• Discreet integration with macOS workflow
+• Accurate prayer calculations (multiple methods)
+• Weather integration and Hijri calendar
+• Privacy-first design (no data collection)
+• Professional, minimal interface
+
+🛠️ Technical Stack:
+Built with Electron + React 19 + TypeScript, following macOS Human Interface Guidelines for menu bar applications.
 
 🌍 Community Impact:
-Currently in French, actively seeking contributors for Arabic, English, and other languages. Already published as an npm package for other developers to use.
+Open source with MIT license. Also published the prayer calculation engine as an npm package for other Islamic app developers to use.
 
-Looking to connect with Islamic tech communities and contributors who share the vision of building quality software for our ummah.
+Currently seeking contributors for internationalization (Arabic, English, Turkish, Indonesian).
 
-#IslamicTech #OpenSource #SoftwareDevelopment #CommunityBuilding #Muslim
+Looking to connect with:
+• Islamic software developers
+• macOS app developers  
+• Muslim professionals who might benefit from this tool
+
+#IslamicTech #macOS #OpenSource #SoftwareDevelopment #Muslim #TypeScript
 
 GitHub: https://github.com/yani2298/salat-now
+npm: https://www.npmjs.com/package/salat-times-calculator
 ```
 
 ## 📝 Reddit Templates
 
+### **r/macOS Post**
+```
+Title: [Open Source] Salat Now - Professional Islamic Prayer Times Menu Bar App
+
+Built a native macOS menu bar application for Islamic prayer times that I wanted to share with the community.
+
+**Problem it solves:**
+Many Muslim professionals need quick access to prayer times without disrupting their workflow. Existing solutions are often mobile-focused or create intrusive desktop notifications.
+
+**Key Features:**
+• Native macOS menu bar integration
+• Accurate prayer times with multiple calculation methods
+• Weather integration and Hijri calendar  
+• Privacy-first (no data collection, works offline)
+• Professional, minimal design following HIG
+• Automatic location detection or manual city selection
+
+**Technical Details:**
+- Built with Electron + React 19 + TypeScript
+- Follows macOS Human Interface Guidelines
+- Native menu bar positioning and behavior
+- Optimized for macOS 10.15+ (Catalina and later)
+
+**Current Status:**
+- Interface currently in French (seeking translators)
+- MIT licensed and fully open source
+- Also published prayer calculation engine as npm package
+
+**Download:** https://github.com/yani2298/salat-now/releases
+**Source:** https://github.com/yani2298/salat-now
+
+Would appreciate feedback from the macOS developer community!
+```
+
 ### **r/islam Post**
 ```
-Title: Free Open-Source Prayer Times Desktop App (No Ads, No Tracking)
+Title: Open Source macOS Prayer Times App - Seeking Community Feedback
 
 Assalamu alaikum brothers and sisters,
 
-I've built a free desktop prayer times application called "Salat Now" and wanted to share it with the community.
+I've developed a professional macOS menu bar application for prayer times called "Salat Now" and would like to share it with our community.
 
 **Why I built this:**
-- Tired of prayer apps with ads and subscriptions
-- Needed something for desktop/laptop
-- Wanted to contribute something beneficial to the ummah
+As a Muslim software developer, I needed something that provided accurate prayer times without interrupting my work. Most existing apps are mobile-focused or create distracting desktop notifications.
 
-**Features:**
-• Accurate prayer times for any city worldwide
+**Features for Muslim professionals:**
+• Discreet menu bar integration (always accessible, never intrusive)
+• Accurate prayer times for any location worldwide
+• Hijri calendar with Islamic dates
 • Weather integration
-• Beautiful, clean interface
-• Cross-platform (Mac, Windows, Linux)
-• Completely free, no ads, no tracking
-• Open source (you can see/verify the code)
+• Privacy-first approach (no tracking, works offline)
+• Completely free and open source
 
 **Current Status:**
-- Interface is in French (I'm working on translations)
-- Looking for contributors who can help with Arabic, English, etc.
-- Also published as npm package for other developers
+- Interface is in French (I'm actively seeking translators)
+- Looking for contributors who can help with Arabic, English, Turkish, Indonesian
+- Also published the prayer calculation engine as an npm package for other developers
 
-**Download:** Available on GitHub releases
+**Technical Note:**
+Built specifically for macOS following Apple's design guidelines for menu bar applications.
+
+**Download:** Available at https://github.com/yani2298/salat-now/releases
 **Source Code:** https://github.com/yani2298/salat-now
 
-Barakallahu feekum for any feedback or contributions!
+JazakAllahu khair for any feedback or contributions!
+
+Would love to hear from:
+- Muslim developers who might want to contribute
+- macOS users who could test and provide feedback
+- Anyone who can help with translations
 ```
 
 ### **r/programming Post**
 ```
-Title: Released Islamic Prayer Times Calculator as TypeScript npm Package
+Title: Released Islamic Prayer Times Calculator as Professional TypeScript Library
 
-Just published a professional Islamic prayer times calculator package that I extracted from my desktop app project.
+Just published a production-ready Islamic prayer times calculation library that I extracted from my macOS menu bar app project.
+
+**Background:**
+While building Salat Now (a professional macOS menu bar prayer app), I developed a robust prayer times calculation engine. Decided to publish it as a standalone package for other Islamic software developers.
 
 **Features:**
-• Multiple calculation methods (ISNA, MWL, Karachi, etc.)
-• Built-in caching and error handling
-• Time adjustments support
-• Current prayer detection with countdown
-• Full TypeScript support
-• Used in production
+• Multiple calculation methods (ISNA, MWL, Karachi, Egyptian, etc.)
+• Built-in caching with configurable TTL
+• Comprehensive error handling
+• Current prayer detection with countdown timers
+• Prayer time adjustments support
+• Full TypeScript support with proper type definitions
+• Zero dependencies except axios and dayjs
 
 **Installation:**
 ```bash
@@ -129,96 +187,175 @@ npm install salat-times-calculator
 
 **Quick Example:**
 ```typescript
-import { SalatTimesCalculator } from 'salat-times-calculator';
+import { SalatTimesCalculator, CalculationMethod } from 'salat-times-calculator';
 
 const calculator = new SalatTimesCalculator();
 const times = await calculator.getPrayerTimes({
   city: 'Paris',
-  country: 'France'
+  country: 'France',
+  calculationMethod: CalculationMethod.ISNA
 });
+
+const current = calculator.getCurrentPrayer(times);
+console.log(`Current: ${current.name}, Next: ${current.next.name}`);
 ```
 
-Perfect for Islamic app developers or anyone building prayer-related features.
+**Use Cases:**
+Perfect for Islamic mobile apps, mosque websites, prayer reminder systems, or any application serving Muslim communities.
+
+**Production Usage:**
+Currently used in Salat Now macOS app with thousands of daily prayer time calculations.
 
 **Links:**
-- npm: https://www.npmjs.com/package/salat-times-calculator  
+- npm: https://www.npmjs.com/package/salat-times-calculator
 - Source: https://github.com/yani2298/salat-now
-- Desktop app built with it: Salat Now
+- macOS app built with it: Salat Now
 
-Would love feedback from the community!
-```
-
-## 📹 YouTube/TikTok Scripts
-
-### **30-Second Demo Script**
-```
-"I got tired of prayer apps with ads and subscriptions, so I built my own.
-
-[Show desktop] This is Salat Now - completely free, no ads, works on any computer.
-
-[Show features] Accurate prayer times, weather, beautiful interface, works offline.
-
-[Show code] Best part? It's open source. You can see exactly how it works.
-
-[Call to action] Link in bio to download and contribute. Let's build better Islamic software together!"
+Feedback from the developer community welcome!
 ```
 
 ## 📧 Email Templates
 
 ### **To Islamic Organizations**
 ```
-Subject: Free Open-Source Prayer Times Software for Your Community
+Subject: Professional macOS Prayer Times App for Your Community
 
 Dear [Organization Name],
 
-I hope this message finds you in good health and strong faith.
+I hope this message finds you in good health and strong iman.
 
-I'm a Muslim software developer who has created a free, open-source desktop application for prayer times called "Salat Now." 
+I'm a Muslim software developer who has created a professional macOS menu bar application for Islamic prayer times called "Salat Now."
 
-Given your organization's commitment to serving the Muslim community, I thought you might be interested in this resource for your members who work on computers or prefer desktop applications.
+**Why this might interest your community:**
 
-Key Benefits:
-• Completely free (no cost to your organization or members)
-• No advertisements or tracking
-• Works on all major platforms (Mac, Windows, Linux)
+Many Muslim professionals in your community likely use macOS for work and need discreet access to accurate prayer times without disrupting their workflow. Salat Now addresses this specific need.
+
+**Key Benefits:**
+• Professional menu bar integration (follows Apple's design guidelines)
+• Privacy-first approach (no data collection, no tracking)
+• Completely free with no advertisements
 • Open source (transparent and trustworthy)
-• Can be customized for your community's needs
+• Accurate calculations using established Islamic methods
 
-I would be honored if you would consider:
-1. Sharing this with your community
-2. Providing feedback for improvements
-3. Helping with translation to serve non-French speakers
+**Community Impact:**
+This tool is particularly valuable for:
+- Muslim professionals working on Mac
+- Students using macOS devices
+- Anyone who needs prayer times during work hours
 
-The project is available at: https://github.com/yani2298/salat-now
+**How You Can Help:**
+1. Share with your community members who use Mac
+2. Provide feedback for improvements
+3. Help with translation efforts (currently French, seeking Arabic/English)
 
-Barakallahu feekum for your time and consideration.
+The application is available at: https://github.com/yani2298/salat-now
+
+I've also open-sourced the prayer calculation engine as an npm package, which other Islamic software developers in your network might find useful.
+
+JazakAllahu khair for your time and consideration.
 
 Best regards,
 Anis Mosbah
-Developer, Salat Now
+Islamic Software Developer
+contact@salatnow.app
 ```
 
-## 🎯 Action Plan for This Week
+### **To macOS Developer Groups**
+```
+Subject: Open Source macOS Menu Bar App - Islamic Prayer Times
 
-### **Day 1-2: Immediate Posting**
-- [ ] Post on r/islam with community template
-- [ ] Share on LinkedIn with professional template
-- [ ] Tweet with technical template
+Hello fellow macOS developers,
 
-### **Day 3-4: Developer Outreach**
-- [ ] Post on r/programming about npm package
-- [ ] Share on r/reactjs showcasing React 19 usage
-- [ ] Post on r/electronjs about cross-platform approach
+I've just released an open source menu bar application for Islamic prayer times called "Salat Now" and would love to share it with the community.
 
-### **Day 5-7: Content Creation**
-- [ ] Record 30-second demo video
-- [ ] Write dev.to article "Building Islamic Apps with Modern Tech"
-- [ ] Create GitHub Gists with code examples
+**Technical Highlights:**
+• Native macOS menu bar integration following HIG
+• Built with Electron + React 19 + TypeScript
+• Clean architecture with modular services
+• Proper macOS notifications integration
+• Optimized for macOS 10.15+ (Catalina and later)
 
-### **Pro Tips:**
-1. **Time posts for maximum visibility** (check when each community is most active)
-2. **Engage authentically** - respond to comments, answer questions
-3. **Cross-post strategically** - don't spam, but share across relevant communities
-4. **Document everything** - track which approaches work best
+**Code Quality:**
+• Full TypeScript coverage
+• Modular service architecture
+• Comprehensive error handling
+• Production-ready with proper build pipeline
+• Includes automated testing setup
 
-Remember: **Quality engagement > quantity of posts!** 🌟 
+**Community Aspect:**
+• MIT licensed and fully open source
+• Extracted core logic as reusable npm package
+• Seeking contributors for internationalization
+• Following Apple's accessibility guidelines
+
+This might be interesting for developers working on:
+- Menu bar applications
+- Location-based services
+- Notification systems
+- Electron + React projects
+- TypeScript best practices
+
+**Repository:** https://github.com/yani2298/salat-now
+**npm package:** https://www.npmjs.com/package/salat-times-calculator
+
+Would appreciate code reviews, architectural feedback, or contributions!
+
+Best,
+Anis
+```
+
+## 🎯 Professional Action Plan
+
+### **Week 1: Technical Communities**
+- [ ] Post on r/macOS highlighting native integration
+- [ ] Share on r/programming about npm package
+- [ ] LinkedIn post targeting Islamic tech professionals
+- [ ] Tweet to macOS developer community
+
+### **Week 2: Islamic Communities**
+- [ ] Post on r/islam with community focus
+- [ ] Share in Islamic professional groups on LinkedIn
+- [ ] Reach out to Islamic organizations via email
+- [ ] Post in Muslim developer Discord/Slack communities
+
+### **Week 3: Developer Outreach**
+- [ ] Write technical blog post on Dev.to
+- [ ] Create GitHub Gists with advanced examples
+- [ ] Reach out to Islamic app developers
+- [ ] Submit to awesome-macos lists
+
+### **Week 4: Content & Media**
+- [ ] Record professional demo video
+- [ ] Write Medium article about building Islamic software
+- [ ] Engage with tech podcasts about diversity in software
+- [ ] Create technical documentation
+
+## 📊 KPIs to Track
+
+### **Professional Metrics**
+- GitHub stars from verified developers
+- npm package weekly downloads
+- Issues/PRs from qualified contributors
+- Mentions in tech articles/blogs
+
+### **Community Metrics**
+- Feedback quality (not just quantity)
+- Translation contributions
+- Feature requests from actual users
+- Testimonials from Muslim professionals
+
+### **Technical Metrics**
+- Code quality scores
+- Documentation completeness
+- API usage from other projects
+- Performance benchmarks
+
+## 💡 Professional Tips
+
+1. **Quality over Quantity**: Better to have 100 engaged users than 1000 random stars
+2. **Community First**: Build genuine relationships in Islamic tech communities
+3. **Technical Excellence**: Let code quality speak for itself
+4. **Consistent Messaging**: Professional, solution-focused communication
+5. **Long-term Thinking**: Focus on sustainable growth and community building
+
+Remember: **Professional software deserves professional marketing.** 🌟 
