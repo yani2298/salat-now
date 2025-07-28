@@ -1,0 +1,297 @@
+name: 🌟 Community & Stars Automation
+
+on:
+  watch:
+    types: [started]
+  fork:
+    types: [created]
+  issues:
+    types: [opened, labeled]
+  pull_request:
+    types: [opened, review_requested]
+  schedule:
+    - cron: '0 12 * * *'  # Daily at noon UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  # Thank users for starring (Starstruck achievement)
+  thank-stargazers:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'watch' && github.event.action == 'started'
+    steps:
+      - name: Thank new stargazer
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const stargazer = context.payload.sender.login;
+            
+            // Create a discussion post thanking the user
+            console.log(`⭐ New star from ${stargazer}! Total stars: ${context.payload.repository.stargazers_count}`);
+            
+            // Create an issue to track star milestones
+            if (context.payload.repository.stargazers_count % 10 === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🎉 ${context.payload.repository.stargazers_count} Stars Milestone!`,
+                body: `## 🌟 We've reached ${context.payload.repository.stargazers_count} stars!
+
+                JazakAllahu Khair to all our supporters! 🤲
+
+                ### Latest Stargazer: @${stargazer}
+
+                Help us reach the next milestone by:
+                - 🔄 Sharing the app with fellow Muslims
+                - 🐛 Reporting bugs and suggesting features  
+                - 🌍 Contributing translations
+                - 📱 Using the app in your daily prayers
+
+                **Next milestone**: ${context.payload.repository.stargazers_count + 10} stars ⭐`,
+                labels: ['milestone', 'community', 'celebration']
+              });
+            }
+
+  # Welcome new forks
+  welcome-forkers:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'fork'
+    steps:
+      - name: Welcome new contributor
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const forker = context.payload.forkee.owner.login;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚀 Welcome new contributor: @${forker}`,
+              body: `## 🎉 Welcome @${forker}!
+
+              Thank you for forking Salat Now! 🕌
+
+              ### 🛠️ Getting Started
+              1. Check out our [Development Guide](README.md#development)
+              2. Review our [Contributing Guidelines](CONTRIBUTING.md)
+              3. Join our community discussions
+
+              ### 💡 Ways to Contribute
+              - 🐛 Fix bugs or improve performance
+              - 🌍 Add translations for your language
+              - ✨ Implement new Islamic features
+              - 📱 Enhance the user interface
+
+              ### 🎯 Achievement Goals
+              Your contributions help us unlock GitHub achievements! 🏆
+
+              Looking forward to your pull requests! JazakAllahu Khair! 🤲`,
+              labels: ['welcome', 'contributor', 'community'],
+              assignees: ['yani2298']
+            });
+
+  # Create engaging issues for community
+  community-challenges:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create weekly community challenge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const challenges = [
+              {
+                title: "🌍 Translation Challenge: Add Arabic Support",
+                body: `## 🌍 Weekly Community Challenge
+
+                ### Goal: Add Arabic (RTL) Language Support
+
+                Help make Salat Now accessible to Arabic speakers worldwide!
+
+                ### Tasks:
+                - [ ] Translate UI strings to Arabic
+                - [ ] Implement RTL layout support
+                - [ ] Test with Arabic prayer terms
+                - [ ] Add Arabic number formatting
+
+                **Reward**: Special mention in README + Achievement unlock! 🏆
+
+                **Skills needed**: Arabic language, CSS/HTML, React
+                **Difficulty**: Intermediate
+
+                Comment below if you're interested! 🚀`,
+                labels: ['good first issue', 'translation', 'community-challenge', 'help wanted']
+              },
+              {
+                title: "🎨 UI Enhancement: Prayer Cards Redesign",
+                body: `## 🎨 Weekly Design Challenge
+
+                ### Goal: Modernize Prayer Time Cards
+
+                Create beautiful, modern prayer time cards for our macOS menu bar app!
+
+                ### Tasks:
+                - [ ] Design new card layouts
+                - [ ] Implement dark/light mode
+                - [ ] Add smooth animations
+                - [ ] Optimize for menu bar size
+
+                **Reward**: Featured in app showcase + Achievement unlock! 🏆
+
+                **Skills needed**: CSS, React, Design
+                **Difficulty**: Beginner-Intermediate
+
+                Share your designs below! 🎨`,
+                labels: ['good first issue', 'design', 'community-challenge', 'enhancement']
+              },
+              {
+                title: "🔔 Feature Request: Smart Prayer Reminders",
+                body: `## 🔔 Advanced Feature Challenge
+
+                ### Goal: Intelligent Prayer Notification System
+
+                Build smart reminders that adapt to user behavior!
+
+                ### Tasks:
+                - [ ] Implement adaptive timing
+                - [ ] Add location-based adjustments
+                - [ ] Create custom notification sounds
+                - [ ] Build reminder analytics
+
+                **Reward**: Co-authorship credit + Achievement unlock! 🏆
+
+                **Skills needed**: TypeScript, Electron, Node.js
+                **Difficulty**: Advanced
+
+                Let's build something amazing! 🚀`,
+                labels: ['feature', 'advanced', 'community-challenge', 'help wanted']
+              }
+            ];
+
+            const challenge = challenges[Math.floor(Math.random() * challenges.length)];
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: challenge.title,
+              body: challenge.body,
+              labels: challenge.labels
+            });
+
+  # Social media automation
+  social-promotion:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Generate social media content
+        run: |
+          echo "📱 Building social media presence for Salat Now..."
+          echo "🎯 Goal: Increase stars and community engagement"
+          echo "📊 Current metrics will be tracked here"
+          
+          # This could integrate with social media APIs
+          # For now, we'll create tracking issues
+          
+      - name: Create social media tracking issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const today = new Date().toLocaleDateString();
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📱 Social Media Campaign - ${today}`,
+              body: `## 📱 Daily Social Media Promotion
+
+              ### 🎯 Goals for Today
+              - [ ] Share on Twitter/X about Islamic app development
+              - [ ] Post in Muslim developer communities
+              - [ ] Share in Islamic tech forums
+              - [ ] Cross-post to relevant Reddit communities
+
+              ### 📊 Current Stats
+              - ⭐ Stars: ${context.payload.repository.stargazers_count}
+              - 🍴 Forks: ${context.payload.repository.forks_count}
+              - 👀 Watchers: ${context.payload.repository.watchers_count}
+
+              ### 🎯 Achievement Progress
+              - Pull Shark: Working on automated PRs 🦈
+              - Starstruck: Growing star count ⭐
+              - Heart On Your Sleeve: Auto-reacting to issues ❤️
+
+              **Help us spread the word! Share this project with the Muslim tech community! 🌍**`,
+              labels: ['marketing', 'community', 'social-media', 'daily-task']
+            });
+
+  # Achievement tracking
+  track-achievements:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update achievement progress
+        run: |
+          cat > .github/ACHIEVEMENT_PROGRESS.md << 'EOF'
+          # 🏆 GitHub Achievement Progress
+
+          Last Updated: $(date)
+
+          ## 🎯 Target Achievements
+
+          ### ⭐ Starstruck
+          - **Goal**: Get stars on repositories
+          - **Status**: 🔄 In Progress
+          - **Strategy**: Community engagement, social media promotion
+
+          ### 🦈 Pull Shark
+          - **Goal**: Open multiple pull requests
+          - **Status**: 🔄 In Progress  
+          - **Strategy**: Automated PRs, community contributions
+
+          ### ⚡ Quickdraw
+          - **Goal**: Close issues/PRs quickly
+          - **Status**: 🔄 In Progress
+          - **Strategy**: Automated issue management
+
+          ### 👥 Pair Extraordinaire
+          - **Goal**: Co-authored commits
+          - **Status**: 🔄 In Progress
+          - **Strategy**: Bot co-authoring, community collaboration
+
+          ### ❤️ Heart On Your Sleeve
+          - **Goal**: React to issues/PRs
+          - **Status**: ✅ Active
+          - **Strategy**: Automated reactions system
+
+          ### 🏔️ Arctic Code Vault Contributor
+          - **Goal**: Contribute to archived projects
+          - **Status**: 🔄 Waiting for next archive
+
+          ## 📊 Community Stats
+          - Total Contributors: Growing 📈
+          - Active Issues: Managed daily 🔄
+          - Community Engagement: High ⚡
+
+          ---
+          *This file is auto-updated by GitHub Actions*
+          EOF
+
+      - name: Commit achievement tracking
+        run: |
+          git config --global user.name "Achievement Tracker"
+          git config --global user.email "tracker@salatnow.app"
+          git add .github/ACHIEVEMENT_PROGRESS.md
+          git commit -m "📊 Update achievement tracking
+
+          Co-authored-by: Anis Mosbah <contact@salatnow.app>" || echo "No changes"
+          git push || echo "Push failed" 

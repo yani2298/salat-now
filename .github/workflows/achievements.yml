@@ -1,0 +1,205 @@
+name: 🏆 GitHub Achievements Automation
+
+on:
+  issues:
+    types: [opened, closed]
+  pull_request:
+    types: [opened, closed]
+  push:
+    branches: [main, master, develop]
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 8 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  # Auto-react to new issues and PRs (Heart On Your Sleeve achievement)
+  auto-reactions:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: React to new issues
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reactions = ['heart', 'eyes', 'rocket', '+1'];
+            const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+            
+            github.rest.reactions.createForIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              content: randomReaction
+            });
+
+      - name: React to new PRs
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reactions = ['rocket', 'eyes', 'heart', '+1'];
+            const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+            
+            github.rest.reactions.createForIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              content: randomReaction
+            });
+
+  # Auto-close stale issues (Quickdraw achievement)
+  quickdraw-automation:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Close stale issues quickly
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'auto-close,stale'
+            });
+
+            for (const issue of issues) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '🤖 Auto-closing this issue for maintenance. Feel free to reopen if still relevant!'
+              });
+
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+            }
+
+  # Generate automated PRs (Pull Shark achievement)
+  automated-contributions:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update README stats
+        run: |
+          echo "<!-- Last updated: $(date) -->" >> README_STATS.md
+          echo "![GitHub stars](https://img.shields.io/github/stars/yani2298/salat-now?style=for-the-badge)" >> README_STATS.md
+          echo "![GitHub forks](https://img.shields.io/github/forks/yani2298/salat-now?style=for-the-badge)" >> README_STATS.md
+          echo "![GitHub issues](https://img.shields.io/github/issues/yani2298/salat-now?style=for-the-badge)" >> README_STATS.md
+
+      - name: Create automated PR
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "🤖 Auto-update project statistics"
+          title: "🤖 Automated: Update project statistics"
+          body: |
+            ## 🤖 Automated Pull Request
+            
+            This PR automatically updates project statistics and metrics.
+            
+            ### Changes:
+            - ✅ Updated README statistics
+            - ✅ Refreshed badges and counters
+            - ✅ Generated latest metrics
+            
+            **Achievement Goal**: Contributing to Pull Shark badge 🦈
+          branch: automated/stats-update
+          delete-branch: true
+
+  # Create co-authored commits (Pair Extraordinaire achievement)
+  pair-programming-bot:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add co-author to commits
+        run: |
+          git config --global user.name "Achievement Bot"
+          git config --global user.email "bot@salatnow.app"
+          
+          # Create a small documentation update
+          echo "<!-- Achievement automation active -->" >> .github/ACHIEVEMENT_LOG.md
+          git add .github/ACHIEVEMENT_LOG.md
+          git commit -m "📊 Achievement tracking update
+
+          Co-authored-by: Anis Mosbah <contact@salatnow.app>
+          Co-authored-by: Achievement Bot <bot@salatnow.app>" || echo "No changes to commit"
+
+  # Community engagement automation
+  community-engagement:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: Welcome new contributors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const welcomeMessage = `## 🎉 Welcome to Salat Now!
+
+            Thank you for contributing to our Islamic prayer times app! 🕌
+
+            ### 🚀 Quick Start
+            - Check our [Contributing Guide](CONTRIBUTING.md)
+            - Join our [Discussions](https://github.com/yani2298/salat-now/discussions)
+            - Star ⭐ this repo if it helps you!
+
+            ### 🎯 Achievement Goals
+            Your contribution helps us unlock GitHub achievements! 🏆
+
+            JazakAllahu Khair for making the app better for the global Muslim community! 🌍`;
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: welcomeMessage
+            });
+
+  # NPM Package publishing (for package achievements)
+  publish-package:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to NPM (if version changed)
+        run: |
+          if npm view salat-times-calculator version | grep -q $(node -p "require('./package.json').version"); then
+            echo "Version already published"
+          else
+            npm publish --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        continue-on-error: true 
