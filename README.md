@@ -125,6 +125,9 @@ salat-now/
 ## 📱 Screenshots
 
 <div align="center">
+  <img width="351" height="551" alt="3" src="https://github.com/user-attachments/assets/8bb4fd9b-7023-4ba7-8a95-1319525c67bc" />
+<img width="351" height="577" alt="1" src="https://github.com/user-attachments/assets/67921412-0351-4e57-a8d6-4823b77290c0" />
+
   <img src="docs/screenshots/main-interface.png" alt="Main Interface" width="45%">
   <img src="docs/screenshots/settings-panel.png" alt="Settings Panel" width="45%">
   
