@@ -69,3 +69,4 @@ $RECYCLE.BIN/
 .vs
 .vscode
 node_modules
+*.zip
