@@ -2,7 +2,7 @@
 # 🕌 Salat Now
 
 <div align="center">
-  <img src="public/app-icon.png" alt="Salat Now App Icon" width="128" height="128">
+  <img src="public/app-icon.png" alt="Salat Now App Icon" width="80" height="80">
   
   <h3>Prayer times reminder application for Muslims</h3>
   
