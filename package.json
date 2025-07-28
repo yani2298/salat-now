@@ -9,14 +9,25 @@
     "url": "https://salatnow.app"
   },
   "homepage": "https://salatnow.app",
-  "description": "Application de rappel des heures de prière pour musulmans avec notifications",
+  "description": "Modern prayer times desktop application for Muslims with accurate calculations, customizable notifications, and beautiful interface. Currently in French, seeking international translations.",
   "keywords": [
-    "prière",
+    "prayer",
     "islam",
-    "horaires de prière",
-    "application de bureau",
+    "prayer-times",
+    "muslim",
+    "salat",
+    "adhan",
+    "hijri-calendar",
+    "desktop-app",
     "electron",
-    "react"
+    "react",
+    "cross-platform",
+    "islamic-app",
+    "notifications",
+    "geolocation",
+    "french",
+    "internationalization",
+    "i18n"
   ],
   "license": "MIT",
   "scripts": {
