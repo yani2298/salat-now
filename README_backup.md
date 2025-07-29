@@ -5,19 +5,6 @@
 
 <div align="center">
 
-### 🏆 Achievement Badges
-![Profile views](https://komarev.com/ghpvc/?username=yani2298&style=for-the-badge&color=blueviolet)
-![GitHub followers](https://img.shields.io/github/followers/yani2298?style=for-the-badge&logo=github&color=blue)
-![Total repos](https://img.shields.io/badge/repos-public-green?style=for-the-badge&logo=github)
-![Years active](https://img.shields.io/badge/years%20active-2024+-brightgreen?style=for-the-badge&logo=github)
-
-### 📊 Live Stats
-![GitHub stars](https://img.shields.io/github/stars/yani2298/salat-now?style=for-the-badge&logo=github&color=yellow)
-![GitHub forks](https://img.shields.io/github/forks/yani2298/salat-now?style=for-the-badge&logo=github&color=blue)
-![GitHub issues](https://img.shields.io/github/issues/yani2298/salat-now?style=for-the-badge&logo=github&color=red)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yani2298/salat-now?style=for-the-badge&logo=github&color=orange)
-
-
 [![macOS](https://img.shields.io/badge/macOS-10.15%2B-blue.svg)](https://www.apple.com/macos)
 [![Swift](https://img.shields.io/badge/Built%20with-Electron-47848f.svg)](https://www.electronjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -260,19 +247,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ---
 
 <div align="center">
-
-### 🏆 Achievement Badges
-![Profile views](https://komarev.com/ghpvc/?username=yani2298&style=for-the-badge&color=blueviolet)
-![GitHub followers](https://img.shields.io/github/followers/yani2298?style=for-the-badge&logo=github&color=blue)
-![Total repos](https://img.shields.io/badge/repos-public-green?style=for-the-badge&logo=github)
-![Years active](https://img.shields.io/badge/years%20active-2024+-brightgreen?style=for-the-badge&logo=github)
-
-### 📊 Live Stats
-![GitHub stars](https://img.shields.io/github/stars/yani2298/salat-now?style=for-the-badge&logo=github&color=yellow)
-![GitHub forks](https://img.shields.io/github/forks/yani2298/salat-now?style=for-the-badge&logo=github&color=blue)
-![GitHub issues](https://img.shields.io/github/issues/yani2298/salat-now?style=for-the-badge&logo=github&color=red)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yani2298/salat-now?style=for-the-badge&logo=github&color=orange)
-
 
 **Made with ❤️ for the global Muslim community**
 
