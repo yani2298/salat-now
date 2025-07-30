@@ -14,6 +14,8 @@
 <img width="200" height="200" alt="Salat Now Icon" src="https://github.com/user-attachments/assets/02f7df8b-341e-435f-8997-a5f9afa74dbf" />
 
 **Discreet, accurate, and beautiful prayer times in your macOS menu bar**
+
+
 <img width="668" height="617" alt="CleanShot 2025-07-30 at 20 51 46" src="https://github.com/user-attachments/assets/9aced850-e906-49c0-b896-6bf65c9c074c" />
 <img width="672" height="636" alt="CleanShot 2025-07-30 at 20 52 02" src="https://github.com/user-attachments/assets/33b848a1-0d65-4899-9aea-4831f5fb76ca" />
 
