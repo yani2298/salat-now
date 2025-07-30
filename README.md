@@ -14,6 +14,8 @@
 <img width="200" height="200" alt="Salat Now Icon" src="https://github.com/user-attachments/assets/02f7df8b-341e-435f-8997-a5f9afa74dbf" />
 
 **Discreet, accurate, and beautiful prayer times in your macOS menu bar**
+<img width="668" height="617" alt="CleanShot 2025-07-30 at 20 51 46" src="https://github.com/user-attachments/assets/9aced850-e906-49c0-b896-6bf65c9c074c" />
+<img width="672" height="636" alt="CleanShot 2025-07-30 at 20 52 02" src="https://github.com/user-attachments/assets/33b848a1-0d65-4899-9aea-4831f5fb76ca" />
 
 [Download Latest Release](https://github.com/yani2298/salat-now/releases) • [View Documentation](#installation) • [Report Issue](https://github.com/yani2298/salat-now/issues)
 
@@ -39,8 +41,7 @@ Built specifically for macOS, it integrates seamlessly into your menu bar, provi
 - **🔒 Privacy First** - No data collection, works offline
 - **🆓 Completely Free** - No subscriptions, no ads, open source
 - 
-<img width="351" height="551" alt="3" src="https://github.com/user-attachments/assets/5055f9bc-4875-4300-a0f9-5fe21f586a7b" />
-<img width="351" height="577" alt="1" src="https://github.com/user-attachments/assets/e7f98111-473b-41a8-92a0-6b2ed2b00568" />
+
 
 ---
 
