@@ -1,24 +1,41 @@
-# Dependency directories
+# ────────────────────────────────────────
+# Dependencies
+# ────────────────────────────────────────
 node_modules/
-/.pnp
+.pnp
 .pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
 
-# Production build folders
+# ────────────────────────────────────────
+# Build outputs
+# ────────────────────────────────────────
 /dist
-/dist-ssr
 /build
-/release
-/release-packager
+/.next/
+/out/
+/.nuxt/
+/.output/
+/.expo/
 
-# Environment variables
+# ────────────────────────────────────────
+# Environment & secrets
+# ────────────────────────────────────────
 .env
 .env.local
+.env.*.local
 .env.development.local
 .env.test.local
 .env.production.local
+*.pem
+*.key
 
-# Log files
-logs
+# ────────────────────────────────────────
+# Logs
+# ────────────────────────────────────────
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -26,55 +43,53 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# ────────────────────────────────────────
+# Cache
+# ────────────────────────────────────────
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.tsbuildinfo
+*.tsbuildinfo
+.npm
 
+# ────────────────────────────────────────
 # Testing
+# ────────────────────────────────────────
 /coverage
+/.nyc_output
+/test-results/
+/playwright-report/
 
-# Certificates and keys
-*.p12
-*.pem
-*.key
-*.keychain
-
-# macOS specific
+# ────────────────────────────────────────
+# OS files
+# ────────────────────────────────────────
 .DS_Store
-.AppleDouble
-.LSOverride
-Icon?
+.DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-
-# Windows specific
-Thumbs.db
 ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
+Thumbs.db
+desktop.ini
 
-# Linux specific
+# ────────────────────────────────────────
+# Editor files
+# ────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
 *~
-.directory
-.Trash-*
-.vs
-.vscode
-node_modules
-*.zip
+*.sublime-project
+*.sublime-workspace
 
-// Updated: 2025-07-29T19:15:41.982Z
-
-// Updated: 2025-07-29T19:15:44.387Z
-
-// Updated: 2025-07-29T19:15:47.591Z
-
-// Updated: 2025-07-29T19:15:52.370Z
+# ────────────────────────────────────────
+# Misc
+# ────────────────────────────────────────
+.vercel
+.netlify
+.turbo
